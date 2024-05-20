@@ -10,6 +10,7 @@ type RouterGroup struct {
 	System     system.RouterGroup
 	Example    example.RouterGroup
 	DataConfig dataConfig.RouterGroup
+	DataConfig dataConfig.RouterGroup
 }
 
 var RouterGroupApp = new(RouterGroup)

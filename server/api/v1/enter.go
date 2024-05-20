@@ -10,6 +10,7 @@ type ApiGroup struct {
 	SystemApiGroup     system.ApiGroup
 	ExampleApiGroup    example.ApiGroup
 	DataConfigApiGroup dataConfig.ApiGroup
+	DataConfigApiGroup dataConfig.ApiGroup
 }
 
 var ApiGroupApp = new(ApiGroup)

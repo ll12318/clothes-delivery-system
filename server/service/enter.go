@@ -10,6 +10,7 @@ type ServiceGroup struct {
 	SystemServiceGroup     system.ServiceGroup
 	ExampleServiceGroup    example.ServiceGroup
 	DataConfigServiceGroup dataConfig.ServiceGroup
+	DataConfigServiceGroup dataConfig.ServiceGroup
 }
 
 var ServiceGroupApp = new(ServiceGroup)

@@ -1,5 +1,4 @@
 package dataConfig
 
 type ApiGroup struct {
-	MarketApi
 }
