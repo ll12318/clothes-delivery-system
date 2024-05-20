@@ -98,6 +98,7 @@ func Routers() *gin.Engine {
 	{
 		dataConfigRouter := router.RouterGroupApp.DataConfig
 		dataConfigRouter.InitMarketRouter(PrivateGroup, PublicGroup)
+		dataConfigRouter.InitStallRouter(PrivateGroup, PublicGroup)
 	}
 
 	global.GVA_LOG.Info("router register success")

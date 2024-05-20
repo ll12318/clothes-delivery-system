@@ -168,6 +168,14 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "市场", Method: "DELETE", Path: "/market/deleteMarketByIds", Description: "批量删除市场"},
 		{ApiGroup: "市场", Method: "DELETE", Path: "/market/deleteMarket", Description: "删除市场"},
 		{ApiGroup: "市场", Method: "POST", Path: "/market/createMarket", Description: "新增市场"},
+
+		// 档口
+		{ApiGroup: "档口", Method: "GET", Path: "/stall/getStallList", Description: "获取档口列表"},
+		{ApiGroup: "档口", Method: "GET", Path: "/stall/findStall", Description: "根据ID获取档口"},
+		{ApiGroup: "档口", Method: "PUT", Path: "/stall/updateStall", Description: "更新档口"},
+		{ApiGroup: "档口", Method: "DELETE", Path: "/stall/deleteStallByIds", Description: "批量删除档口"},
+		{ApiGroup: "档口", Method: "DELETE", Path: "/stall/deleteStall", Description: "删除档口"},
+		{ApiGroup: "档口", Method: "POST", Path: "/stall/createStall", Description: "新增档口"},
 	}
 	if err := db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, sysModel.SysApi{}.TableName()+"表数据初始化失败!")
