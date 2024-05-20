@@ -13,6 +13,7 @@ type Stall struct {
 	Remarks     string `json:"remarks" form:"remarks" gorm:"column:remarks;comment:;"`                                 //备注
 	Market      Market `json:"market" form:"market" gorm:"foreignKey:MarketId;references:ID"`
 	MarketId    uint   `json:"marketId" form:"marketId" gorm:"column:market_id;comment:;"`
+	RouteId     uint   `json:"routeId" form:"routeId" gorm:"column:route_id;comment:;"`
 }
 
 // TableName 档口 Stall自定义表名 stall

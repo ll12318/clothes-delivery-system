@@ -87,6 +87,9 @@ func (i *initMenu) InitializeData(ctx context.Context) (next context.Context, er
 
 		// 档口
 		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "stall", Name: "stall", Component: "view/dataConfig/stall/stall.vue", Sort: 2, Meta: Meta{Title: "档口", Icon: "odometer", KeepAlive: false}},
+
+		// 路线
+		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "route", Name: "route", Component: "view/dataConfig/route/route.vue", Sort: 3, Meta: Meta{Title: "路线", Icon: "odometer", KeepAlive: false}},
 	}
 	if err = db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, SysBaseMenu{}.TableName()+"表数据初始化失败!")

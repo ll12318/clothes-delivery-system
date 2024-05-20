@@ -5,14 +5,11 @@ import (
 	"time"
 )
 
-type StallSearch struct {
+type RouteSearch struct {
 	StartCreatedAt *time.Time `json:"startCreatedAt" form:"startCreatedAt"`
 	EndCreatedAt   *time.Time `json:"endCreatedAt" form:"endCreatedAt"`
 
-	Stall           string `json:"stall" form:"stall" `
-	StallNumber     string `json:"stallNumber" form:"stallNumber" `
-	MarketId        uint   `json:"marketId" form:"marketId" `
-	FilterOccupancy bool   `json:"filterOccupancy" form:"filterOccupancy"`
+	RouteName string `json:"routeName" form:"routeName" `
 	request.PageInfo
 	Sort  string `json:"sort" form:"sort"`
 	Order string `json:"order" form:"order"`

@@ -56,8 +56,13 @@ func (stallService *StallService) GetStallInfoList(info dataConfigReq.StallSearc
 	if info.StartCreatedAt != nil && info.EndCreatedAt != nil {
 		db = db.Where("created_at BETWEEN ? AND ?", info.StartCreatedAt, info.EndCreatedAt)
 	}
-	if info.MarketId != 0 {
-		db = db.Where("market_id = ?", info.MarketId)
+
+	if info.FilterOccupancy == true {
+		db = db.Where("route_id = ?", 0)
+	} else {
+		if info.MarketId != 0 {
+			db = db.Where("market_id = ?", info.MarketId)
+		}
 	}
 	if info.Stall != "" {
 		db = db.Where("stall LIKE ?", "%"+info.Stall+"%")
