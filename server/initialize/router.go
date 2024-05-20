@@ -95,6 +95,10 @@ func Routers() *gin.Engine {
 
 	//插件路由安装
 	InstallPlugin(PrivateGroup, PublicGroup)
+	{
+		dataConfigRouter := router.RouterGroupApp.DataConfig
+		dataConfigRouter.InitMarketRouter(PrivateGroup, PublicGroup)
+	}
 
 	global.GVA_LOG.Info("router register success")
 	return Router
