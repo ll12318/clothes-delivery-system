@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
@@ -82,10 +82,15 @@ func (userService *UserService) ChangePassword(u *system.SysUser, newPassword st
 //@param: info request.PageInfo
 //@return: err error, list interface{}, total int64
 
-func (userService *UserService) GetUserInfoList(info request.PageInfo) (list interface{}, total int64, err error) {
+func (userService *UserService) GetUserInfoList(info systemReq.SysUserSearch) (list interface{}, total int64, err error) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	db := global.GVA_DB.Model(&system.SysUser{})
+	if info.AuthorityIds != nil {
+		authorityIDs := info.AuthorityIds
+		db.Joins("JOIN sys_user_authority ON sys_users.id = sys_user_authority.sys_user_id").
+			Where("sys_user_authority.sys_authority_authority_id IN ?", authorityIDs)
+	}
 	var userList []system.SysUser
 	err = db.Count(&total).Error
 	if err != nil {

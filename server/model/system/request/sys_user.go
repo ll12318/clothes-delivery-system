@@ -1,6 +1,7 @@
 package request
 
 import (
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 )
 
@@ -53,4 +54,10 @@ type ChangeUserInfo struct {
 	SideMode     string                `json:"sideMode"  gorm:"comment:用户侧边主题"`                                                      // 用户侧边主题
 	Enable       int                   `json:"enable" gorm:"comment:冻结用户"`                                                           //冻结用户
 	Authorities  []system.SysAuthority `json:"-" gorm:"many2many:sys_user_authority;"`
+}
+
+// 查询用户列表
+type SysUserSearch struct {
+	request.PageInfo
+	AuthorityIds []uint `json:"authorityIds" form:"authorityIds"`
 }
