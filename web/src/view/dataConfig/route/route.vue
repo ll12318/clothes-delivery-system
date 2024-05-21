@@ -103,6 +103,13 @@
             scope.row.stalls.map((item) => item.stall).join(",")
           }}</template>
         </el-table-column>
+
+        <el-table-column
+          align="left"
+          label="司机"
+          prop="user.userName"
+          width="120"
+        />
         <el-table-column align="left" label="备注" prop="remarks" width="120" />
         <el-table-column
           align="left"
@@ -180,12 +187,27 @@
             value-key="ID"
             filterable
             placeholder="请选择档口"
-            @foucs="queryStallList"
           >
             <el-option
               v-for="(item, index) in stallOption"
               :key="index"
               :label="item.stall"
+              :value="item"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="司机" prop="user">
+          <el-select
+            v-model="formData.user"
+            :clearable="true"
+            value-key="ID"
+            filterable
+            placeholder="请选择司机"
+          >
+            <el-option
+              v-for="(item, index) in userOption"
+              :key="index"
+              :label="item.userName"
               :value="item"
             />
           </el-select>
@@ -212,6 +234,7 @@ import {
   getRouteList,
 } from "@/api/dataConfig/route";
 import { getStallList } from "@/api/dataConfig/stall";
+import { getUserList } from "@/api/user";
 // 全量引入格式化工具 请按需保留
 import {
   getDictFunc,
@@ -241,10 +264,21 @@ const stallOption = ref([]);
 const queryStallList = async () => {
   const res = await getStallList({
     page: 1,
-    limit: 1000,
+    pageSize: 1000,
     filterOccupancy: true,
   });
   stallOption.value = res.data.list;
+};
+
+const userOption = ref([]);
+
+const queryUserList = async () => {
+  const res = await getUserList({
+    page: 1,
+    pageSize: 1000,
+    authorityIds: [999],
+  });
+  userOption.value = res.data.list;
 };
 
 // 验证规则
@@ -432,6 +466,7 @@ const updateRouteFunc = async (row) => {
     formData.value = res.data.reroute;
     dialogFormVisible.value = true;
     await queryStallList();
+    await queryUserList();
     stallOption.value.push(...row.stalls);
   }
 };
@@ -459,6 +494,7 @@ const openDialog = () => {
   type.value = "create";
   dialogFormVisible.value = true;
   queryStallList();
+  queryUserList();
 };
 
 // 关闭弹窗
@@ -470,6 +506,7 @@ const closeDialog = () => {
     stalls: null,
   };
   stallOption.value = [];
+  userOption.value = [];
 };
 // 弹窗确定
 const enterDialog = async () => {

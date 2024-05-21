@@ -79,7 +79,7 @@ func (routeService *RouteService) UpdateRoute(route dataConfig.Route) (err error
 // GetRoute 根据ID获取路线记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (routeService *RouteService) GetRoute(ID string) (route dataConfig.Route, err error) {
-	err = global.GVA_DB.Preload("Stalls").Where("id = ?", ID).First(&route).Error
+	err = global.GVA_DB.Preload("Stalls").Preload("User").Where("id = ?", ID).First(&route).Error
 	return
 }
 
@@ -89,7 +89,7 @@ func (routeService *RouteService) GetRouteInfoList(info dataConfigReq.RouteSearc
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	// 创建db
-	db := global.GVA_DB.Model(&dataConfig.Route{}).Preload("Stalls")
+	db := global.GVA_DB.Model(&dataConfig.Route{}).Preload("Stalls").Preload("User")
 	var routes []dataConfig.Route
 	// 如果有条件搜索 下方会自动创建搜索语句
 	if info.StartCreatedAt != nil && info.EndCreatedAt != nil {
