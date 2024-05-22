@@ -128,7 +128,8 @@ mysql:
     db-name: clothes-delivery-system
     username: root
     password: Liuli5201314
-    path: 114.55.36.11
+    path: localhost
+#    path: 114.55.36.11
     engine: ""
     log-mode: error
     max-idle-conns: 10

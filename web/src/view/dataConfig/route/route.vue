@@ -518,7 +518,10 @@ const enterDialog = async () => {
         res = await createRoute(formData.value);
         break;
       case "update":
-        res = await updateRoute(formData.value);
+        res = await updateRoute({
+          ...formData.value,
+          userId: formData.value.user.ID,
+        });
         break;
       default:
         res = await createRoute(formData.value);

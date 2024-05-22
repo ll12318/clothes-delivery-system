@@ -20,25 +20,67 @@ func (routeService *RouteService) CreateRoute(route *dataConfig.Route) (err erro
 // DeleteRoute 删除路线记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (routeService *RouteService) DeleteRoute(ID string) (err error) {
-	err = global.GVA_DB.Delete(&dataConfig.Route{}, "id = ?", ID).Error
-	return err
+	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		var currentStalls []dataConfig.Stall
+		if TxErr := tx.Model(&dataConfig.Stall{}).Where("route_id = ?", ID).Find(&currentStalls).Error; err != nil {
+			return TxErr
+		}
+		// 获取当前Stall的ID集合
+		currentStallIDs := make([]uint, len(currentStalls))
+		for i, stall := range currentStalls {
+			currentStallIDs[i] = stall.ID
+		}
+
+		// 把currentStalls里的数据 route_id 置为null
+		if len(currentStallIDs) > 0 {
+			if TxErr := tx.Model(&dataConfig.Stall{}).Where("id IN ?", currentStallIDs).Update("route_id", 0).Error; err != nil {
+				return TxErr
+			}
+		}
+		TxErr := tx.Delete(&dataConfig.Route{}, "id = ?", ID).Error
+		if TxErr != nil {
+			return TxErr
+		}
+		return nil
+	})
 }
 
 // DeleteRouteByIds 批量删除路线记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (routeService *RouteService) DeleteRouteByIds(IDs []string) (err error) {
-	err = global.GVA_DB.Delete(&[]dataConfig.Route{}, "id in ?", IDs).Error
-	return err
+	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		var currentStalls []dataConfig.Stall
+		if TxErr := tx.Model(&dataConfig.Stall{}).Where("route_id IN ?", IDs).Find(&currentStalls).Error; err != nil {
+			return TxErr
+		}
+		// 获取当前Stall的ID集合
+		currentStallIDs := make([]uint, len(currentStalls))
+		for i, stall := range currentStalls {
+			currentStallIDs[i] = stall.ID
+		}
+
+		// 把currentStalls里的数据 route_id 置为null
+		if len(currentStallIDs) > 0 {
+			if TxErr := tx.Model(&dataConfig.Stall{}).Where("id IN ?", currentStallIDs).Update("route_id", 0).Error; err != nil {
+				return TxErr
+			}
+		}
+		TxErr := tx.Delete(&dataConfig.Route{}, "id IN ?", IDs).Error
+		if TxErr != nil {
+			return TxErr
+		}
+		return nil
+	})
 }
 
 // UpdateRoute 更新路线记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (routeService *RouteService) UpdateRoute(route dataConfig.Route) (err error) {
 
-	err = global.GVA_DB.Transaction(func(tx *gorm.DB) (err error) {
+	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
 		var currentStalls []dataConfig.Stall
-		if err := tx.Model(&dataConfig.Stall{}).Where("route_id = ?", route.ID).Find(&currentStalls).Error; err != nil {
-			return err
+		if TxErr := tx.Model(&dataConfig.Stall{}).Where("route_id = ?", route.ID).Find(&currentStalls).Error; err != nil {
+			return TxErr
 		}
 
 		// 获取当前Stall的ID集合
@@ -60,16 +102,17 @@ func (routeService *RouteService) UpdateRoute(route dataConfig.Route) (err error
 			newStallsIDs[i] = stall.ID
 		}
 		if len(newStallsIDs) > 0 {
-			if err := tx.Model(&dataConfig.Stall{}).Where("id IN ?", newStallsIDs).Update("route_id", route.ID).Error; err != nil {
-				return err
+			if TxErr := tx.Model(&dataConfig.Stall{}).Where("id IN ?", newStallsIDs).Update("route_id", route.ID).Error; err != nil {
+				return TxErr
 			}
 		}
 
-		err = tx.Model(&dataConfig.Route{}).Where("id = ?", route.ID).Updates(&route).Error
-
-		return err
+		TxErr := tx.Model(&dataConfig.Route{}).Where("id = ?", route.ID).Updates(&route).Error
+		if TxErr != nil {
+			return TxErr
+		}
+		return nil
 	})
-	return err
 	/**
 	err = global.GVA_DB.Model(&dataConfig.Route{}).Where("id = ?", route.ID).Updates(&route).Error
 	return err
