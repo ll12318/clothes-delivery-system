@@ -5,6 +5,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/dataConfig"
 	dataConfigReq "github.com/flipped-aurora/gin-vue-admin/server/model/dataConfig/request"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type RouteService struct {
@@ -79,9 +80,21 @@ func (routeService *RouteService) UpdateRoute(route dataConfig.Route) (err error
 
 	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
 		var currentStalls []dataConfig.Stall
-		if TxErr := tx.Model(&dataConfig.Stall{}).Where("route_id = ?", route.ID).Find(&currentStalls).Error; err != nil {
+		// route stall表 锁死 查询也锁了
+		//if TxErr := tx.Exec("LOCK TABLES stall WRITE, route WRITE").Error; TxErr != nil {
+		//	return TxErr
+		//}
+		//defer tx.Exec("UNLOCK TABLES") // 在事务结束前释放表锁
+
+		// 锁stall表 查询不锁 还会把事务内的所有表都锁住
+		if TxErr := tx.Model(&dataConfig.Stall{}).Clauses(clause.Locking{Strength: "UPDATE"}).Where("route_id = ?", route.ID).Find(&currentStalls).Error; err != nil {
 			return TxErr
 		}
+
+		// 锁stall表 查询不锁 只锁查询到的数据 不会锁住其他数据
+		//if TxErr := tx.Model(&dataConfig.Stall{}).Set("gorm:query_option", "FOR UPDATE").Where("route_id = ?", route.ID).Find(&currentStalls).Error; err != nil {
+		//	return TxErr
+		//}
 
 		// 获取当前Stall的ID集合
 		currentStallIDs := make([]uint, len(currentStalls))
@@ -91,8 +104,8 @@ func (routeService *RouteService) UpdateRoute(route dataConfig.Route) (err error
 
 		// 把currentStalls里的数据 route_id 置为null
 		if len(currentStallIDs) > 0 {
-			if err := tx.Model(&dataConfig.Stall{}).Where("id IN ?", currentStallIDs).Update("route_id", 0).Error; err != nil {
-				return err
+			if TxErr := tx.Model(&dataConfig.Stall{}).Where("id IN ?", currentStallIDs).Update("route_id", 0).Error; TxErr != nil {
+				return TxErr
 			}
 		}
 
@@ -102,12 +115,15 @@ func (routeService *RouteService) UpdateRoute(route dataConfig.Route) (err error
 			newStallsIDs[i] = stall.ID
 		}
 		if len(newStallsIDs) > 0 {
-			if TxErr := tx.Model(&dataConfig.Stall{}).Where("id IN ?", newStallsIDs).Update("route_id", route.ID).Error; err != nil {
+			if TxErr := tx.Model(&dataConfig.Stall{}).Where("id IN ?", newStallsIDs).Update("route_id", route.ID).Error; TxErr != nil {
 				return TxErr
 			}
 		}
-
+		// 锁住 route查询到的数据
 		TxErr := tx.Model(&dataConfig.Route{}).Where("id = ?", route.ID).Updates(&route).Error
+		//TxErr := tx.Model(&dataConfig.Route{}).Set("gorm:query_option", "FOR UPDATE").Where("id = ?", route.ID).Updates(&route).Error
+		//time.Sleep(19 * time.Second)
+
 		if TxErr != nil {
 			return TxErr
 		}
