@@ -14,6 +14,7 @@ type Stall struct {
 	Market      Market `json:"market" form:"market" gorm:"foreignKey:MarketId;references:ID"`
 	MarketId    uint   `json:"marketId" form:"marketId" gorm:"column:market_id;comment:;"`
 	RouteId     uint   `json:"routeId" form:"routeId" gorm:"column:route_id;comment:;"`
+	Urgent      *bool  `json:"urgent" form:"urgent" gorm:"column:urgent;comment:是否加急;"` // 是否紧急
 }
 
 // TableName 档口 Stall自定义表名 stall

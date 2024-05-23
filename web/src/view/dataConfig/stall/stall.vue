@@ -105,6 +105,13 @@
         <el-table-column
           sortable
           align="left"
+          label="加急档口"
+          prop="urgent"
+          width="120"
+        />
+        <el-table-column
+          sortable
+          align="left"
           label="市场"
           prop="market.marketName"
           width="120"
@@ -185,6 +192,9 @@
         :rules="rule"
         label-width="80px"
       >
+        <el-form-item label="加急档口:" prop="stall">
+          <el-switch v-model="formData.urgent" />
+        </el-form-item>
         <el-form-item label="市场" prop="market">
           <el-select
             v-model="formData.market"
