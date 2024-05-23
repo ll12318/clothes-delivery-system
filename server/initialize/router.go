@@ -88,6 +88,10 @@ func Routers() *gin.Engine {
 		dataConfigRouter.InitRouteRouter(PrivateGroup, PublicGroup)
 
 	}
+	{
+		billRouter := router.RouterGroupApp.Bill
+		billRouter.InitGoodBillRouter(PrivateGroup, PublicGroup)
+	}
 
 	global.GVA_LOG.Info("router register success")
 	return Router
