@@ -4,6 +4,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/bill"
 	billReq "github.com/flipped-aurora/gin-vue-admin/server/model/bill/request"
+	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
@@ -53,13 +54,14 @@ func (gbService *GoodBillService) DeleteGoodBillByIds(IDs []string, deleted_by u
 // Author [piexlmax](https://github.com/piexlmax)
 func (gbService *GoodBillService) UpdateGoodBill(gb bill.GoodBill) (err error) {
 	err = global.GVA_DB.Model(&bill.GoodBill{}).Where("id = ?", gb.ID).Updates(&gb).Error
+
 	return err
 }
 
 // GetGoodBill 根据ID获取货单记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (gbService *GoodBillService) GetGoodBill(ID string) (gb bill.GoodBill, err error) {
-	err = global.GVA_DB.Where("id = ?", ID).First(&gb).Error
+	err = global.GVA_DB.Preload("Stall.Market").Where("id = ?", ID).First(&gb).Error
 	return
 }
 
@@ -67,7 +69,9 @@ func (gbService *GoodBillService) GetGoodBill(ID string) (gb bill.GoodBill, err 
 // Author [piexlmax](https://github.com/piexlmax)
 func (gbService *GoodBillService) GetGoodBillInfoList(info billReq.GoodBillSearch, userUuid uuid.UUID, userId uint) (list []bill.GoodBill, total int64, err error) {
 
-	db := global.GVA_DB.Model(&bill.GoodBill{})
+	db := global.GVA_DB.Model(&bill.GoodBill{}).Preload("CreatedByUserInfo", func(db *gorm.DB) *gorm.DB {
+		return db.Select("id", "nick_name") // 选择需要的字段
+	}).Preload("Stall.Market").Preload("Stall.Route.User")
 	// 查询用户的角色
 
 	userService := system.UserService{}
@@ -135,7 +139,18 @@ func (gbService *GoodBillService) GetGoodBillInfoListByAdmin(db *gorm.DB, info b
 	}
 
 	err = db.Find(&gbs).Error
+	gbService.handlerCreatedBySimpleUser(gbs)
 	return gbs, total, err
+}
+
+func (gbService *GoodBillService) handlerCreatedBySimpleUser(gbs []bill.GoodBill) {
+	for i := 0; i < len(gbs); i++ {
+		// 查询创建人信息
+		gbs[i].CreatedBySimpleUser = systemRes.CreatedBySimpleUser{
+			ID:       gbs[i].CreatedByUserInfo.ID,
+			NickName: gbs[i].CreatedByUserInfo.NickName,
+		}
+	}
 }
 
 // GetGoodBillInfoListByUser
@@ -159,6 +174,7 @@ func (gbService *GoodBillService) GetGoodBillInfoListByUser(db *gorm.DB, info bi
 	}
 
 	err = db.Find(&gbs).Error
+	gbService.handlerCreatedBySimpleUser(gbs)
 	return gbs, total, err
 
 }
