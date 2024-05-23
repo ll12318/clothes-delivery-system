@@ -19,6 +19,9 @@ type GoodBill struct {
 	CreatedBySimpleUser response.CreatedBySimpleUser `json:"createdBySimpleUser"  gorm:"-"`
 	Stall               dataConfig.Stall             `json:"stall" gorm:"foreignKey:StallId;references:ID"`
 	StallId             uint                         `json:"stallId" form:"stallId" gorm:"column:stall_id;comment:;"`
+	Urgent              *bool                        `json:"urgent" form:"urgent" gorm:"column:urgent;comment:是否加急;"` // 是否紧急
+	TakeGoodPeople      system.SysUser               `json:"takeGoodPeople" form:"takeGoodPeople" gorm:"foreignKey:TakeGoodPeopleId;references:ID"`
+	TakeGoodPeopleId    uint                         `json:"takeGoodPeopleId" form:"takeGoodPeopleId" gorm:"column:take_good_people_id;comment: 拿货人id;"`
 }
 
 // TableName 货单 GoodBill自定义表名 good_bill

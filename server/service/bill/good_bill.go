@@ -5,9 +5,11 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/bill"
 	billReq "github.com/flipped-aurora/gin-vue-admin/server/model/bill/request"
 	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/service/dataConfig"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type GoodBillService struct {
@@ -16,6 +18,18 @@ type GoodBillService struct {
 // CreateGoodBill 创建货单记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (gbService *GoodBillService) CreateGoodBill(gb *bill.GoodBill) (err error) {
+	routeService := dataConfig.ServiceGroup{}
+	routeId := gb.Stall.RouteId
+	if routeId != 0 {
+		route, err := routeService.GetRoute(strconv.Itoa(int(routeId)))
+		if err != nil {
+			return err
+		}
+		if route.User.ID != 0 {
+			gb.TakeGoodPeopleId = route.User.ID
+		}
+	}
+
 	err = global.GVA_DB.Create(gb).Error
 	return err
 }
@@ -54,7 +68,6 @@ func (gbService *GoodBillService) DeleteGoodBillByIds(IDs []string, deleted_by u
 // Author [piexlmax](https://github.com/piexlmax)
 func (gbService *GoodBillService) UpdateGoodBill(gb bill.GoodBill) (err error) {
 	err = global.GVA_DB.Model(&bill.GoodBill{}).Where("id = ?", gb.ID).Updates(&gb).Error
-
 	return err
 }
 
@@ -71,7 +84,7 @@ func (gbService *GoodBillService) GetGoodBillInfoList(info billReq.GoodBillSearc
 
 	db := global.GVA_DB.Model(&bill.GoodBill{}).Preload("CreatedByUserInfo", func(db *gorm.DB) *gorm.DB {
 		return db.Select("id", "nick_name") // 选择需要的字段
-	}).Preload("Stall.Market").Preload("Stall.Route.User")
+	}).Preload("Stall.Market").Preload("TakeGoodPeople")
 	// 查询用户的角色
 
 	userService := system.UserService{}

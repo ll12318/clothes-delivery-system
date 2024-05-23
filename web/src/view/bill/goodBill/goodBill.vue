@@ -89,6 +89,51 @@
           width="120"
         />
 
+        <el-table-column
+          align="left"
+          label="档口名"
+          prop="stall.stall"
+          width="120"
+        />
+        <el-table-column
+          align="left"
+          label="档口号"
+          prop="stall.stallNumber"
+          width="120"
+        />
+        <el-table-column
+          align="left"
+          label="拿货人"
+          prop="takeGoodPeople.nickName"
+          width="220"
+        >
+          <template #default="scope">
+            <div>
+              <el-select
+                v-if="btnAuth.takeGoodPeopleInp"
+                v-model="scope.row.takeGoodPeopleId"
+                filterable
+                placeholder="请选择司机"
+                @change="takeGoodPeopleInpChange(scope.row)"
+              >
+                <el-option
+                  v-for="(item, index) in userOption"
+                  :key="index"
+                  :label="item.userName"
+                  :value="item.ID"
+                />
+              </el-select>
+              <span v-else>{{ scope.row.takeGoodPeople.nickName }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="left"
+          label="市场"
+          prop="stall.market.marketName"
+          width="120"
+        />
+        <el-table-column align="left" label="加急" prop="urgent" width="120" />
         <el-table-column align="left" label="备注" prop="remarks" width="120" />
         <el-table-column
           align="left"
@@ -161,6 +206,9 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="加急:" prop="urgent">
+          <el-switch v-model="formData.urgent" />
+        </el-form-item>
         <el-form-item label="备注:" prop="remarks">
           <el-input
             v-model="formData.remarks"
@@ -197,6 +245,11 @@ import {
 import { ElMessage, ElMessageBox } from "element-plus";
 import { ref, reactive } from "vue";
 import { getStallList } from "@/api/dataConfig/stall";
+import { getUserList } from "@/api/user";
+
+import { useBtnAuth } from "@/utils/btnAuth";
+const btnAuth = useBtnAuth();
+console.log("🚀 ~ btnAuth:", btnAuth.takeGoodPeopleInp);
 
 defineOptions({
   name: "GoodBill",
@@ -209,7 +262,9 @@ const formData = ref({
 });
 
 // 验证规则
-const rule = reactive({});
+const rule = reactive({
+  stall: [{ required: true, message: "请选择档口", trigger: "change" }],
+});
 
 const searchRule = reactive({
   createdAt: [
@@ -260,6 +315,18 @@ const queryStallList = async () => {
   stallOptions.value = table.data.list;
 };
 queryStallList();
+
+const userOption = ref([]);
+
+const queryUserList = async () => {
+  const res = await getUserList({
+    page: 1,
+    pageSize: 1000,
+    authorityIds: [999],
+  });
+  userOption.value = res.data.list;
+};
+if (btnAuth.takeGoodPeopleInp) queryUserList();
 // 重置
 const onReset = () => {
   searchInfo.value = {};
@@ -436,6 +503,14 @@ const enterDialog = async () => {
       closeDialog();
       getTableData();
     }
+  });
+};
+
+const takeGoodPeopleInpChange = async (val) => {
+  await updateGoodBill(val);
+  ElMessage({
+    type: "success",
+    message: "拿货人修改成功",
   });
 };
 </script>
