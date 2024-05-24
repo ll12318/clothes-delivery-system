@@ -275,23 +275,15 @@ import {
   createStall,
   deleteStall,
   deleteStallByIds,
-  updateStall,
   findStall,
   getStallList,
+  updateStall,
 } from "@/api/dataConfig/stall";
 
 // 全量引入格式化工具 请按需保留
-import {
-  getDictFunc,
-  formatDate,
-  formatBoolean,
-  filterDict,
-  filterDataSource,
-  ReturnArrImg,
-  onDownloadFile,
-} from "@/utils/format";
+import { formatDate } from "@/utils/format";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { ref, reactive } from "vue";
+import { reactive, ref } from "vue";
 
 defineOptions({
   name: "Stall",

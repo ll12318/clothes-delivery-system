@@ -240,28 +240,21 @@ import {
   createGoodBill,
   deleteGoodBill,
   deleteGoodBillByIds,
-  updateGoodBill,
   findGoodBill,
   getGoodBillList,
+  updateGoodBill,
 } from "@/api/bill/goodBill";
 
 // 全量引入格式化工具 请按需保留
-import {
-  getDictFunc,
-  formatDate,
-  formatBoolean,
-  filterDict,
-  filterDataSource,
-  ReturnArrImg,
-  onDownloadFile,
-} from "@/utils/format";
+import { formatDate } from "@/utils/format";
 
 import { ElMessage, ElMessageBox } from "element-plus";
-import { ref, reactive } from "vue";
+import { reactive, ref } from "vue";
 import { getStallList } from "@/api/dataConfig/stall";
 import { getUserList } from "@/api/user";
 
 import { useBtnAuth } from "@/utils/btnAuth";
+
 const btnAuth = useBtnAuth();
 console.log("🚀 ~ btnAuth:", btnAuth.takeGoodPeopleInp);
 

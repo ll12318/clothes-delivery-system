@@ -157,6 +157,10 @@ func (routeService *RouteService) GetRouteInfoList(info dataConfigReq.RouteSearc
 	if info.RouteName != "" {
 		db = db.Where("route_name LIKE ?", "%"+info.RouteName+"%")
 	}
+	if info.Urgent != nil {
+		db = db.Where("urgent = ?", info.Urgent)
+	}
+
 	err = db.Count(&total).Error
 	if err != nil {
 		return

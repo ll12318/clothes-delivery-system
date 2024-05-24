@@ -48,6 +48,24 @@
         <el-form-item label="路线名称" prop="routeName">
           <el-input v-model="searchInfo.routeName" placeholder="搜索条件" />
         </el-form-item>
+        <el-form-item label="加急" prop="urgent">
+          <el-select
+            v-model="searchInfo.urgent"
+            clearable
+            filterable
+            placeholder="请选择加急档口"
+          >
+            <el-option
+              v-for="item in [
+                { label: '是', value: true },
+                { label: '否', value: false },
+              ]"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button icon="search" type="primary" @click="onSubmit"
             >查询</el-button
@@ -236,24 +254,16 @@ import {
   createRoute,
   deleteRoute,
   deleteRouteByIds,
-  updateRoute,
   findRoute,
   getRouteList,
+  updateRoute,
 } from "@/api/dataConfig/route";
 import { getStallList } from "@/api/dataConfig/stall";
 import { getUserList } from "@/api/user";
 // 全量引入格式化工具 请按需保留
-import {
-  getDictFunc,
-  formatDate,
-  formatBoolean,
-  filterDict,
-  filterDataSource,
-  ReturnArrImg,
-  onDownloadFile,
-} from "@/utils/format";
+import { formatDate } from "@/utils/format";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { ref, reactive } from "vue";
+import { reactive, ref } from "vue";
 
 defineOptions({
   name: "Route",
