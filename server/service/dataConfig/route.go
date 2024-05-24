@@ -1,6 +1,7 @@
 package dataConfig
 
 import (
+	"encoding/json"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/dataConfig"
 	dataConfigReq "github.com/flipped-aurora/gin-vue-admin/server/model/dataConfig/request"
@@ -159,6 +160,18 @@ func (routeService *RouteService) GetRouteInfoList(info dataConfigReq.RouteSearc
 	}
 	if info.Urgent != nil {
 		db = db.Where("urgent = ?", info.Urgent)
+	}
+
+	if info.UserIds != "" && info.UserIds != "[]" {
+		// UserIds是一个字符串[10,11] 转换成int类型数组
+		var userIds []int
+		err := json.Unmarshal([]byte(info.UserIds), &userIds)
+		if err != nil {
+			return routes, 0, err
+		}
+		if len(userIds) > 0 {
+			db = db.Where("user_id IN ?", userIds)
+		}
 	}
 
 	err = db.Count(&total).Error

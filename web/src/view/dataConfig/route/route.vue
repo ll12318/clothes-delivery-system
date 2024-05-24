@@ -48,6 +48,23 @@
         <el-form-item label="路线名称" prop="routeName">
           <el-input v-model="searchInfo.routeName" placeholder="搜索条件" />
         </el-form-item>
+        <el-form-item label="司机" prop="routeName">
+          <el-select
+            v-model="searchInfo.userIds"
+            filterable
+            multiple
+            collapse-tags
+            clearable
+            placeholder="请选择司机"
+          >
+            <el-option
+              v-for="(item, index) in userOption"
+              :key="index"
+              :label="item.userName"
+              :value="item.ID"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="加急" prop="urgent">
           <el-select
             v-model="searchInfo.urgent"
@@ -299,7 +316,7 @@ const queryUserList = async () => {
   });
   userOption.value = res.data.list;
 };
-
+queryUserList();
 // 验证规则
 const rule = reactive({
   routeName: [
@@ -404,6 +421,7 @@ const getTableData = async () => {
     page: page.value,
     pageSize: pageSize.value,
     ...searchInfo.value,
+    userIds: JSON.stringify(searchInfo.value.userIds),
   });
   if (table.code === 0) {
     tableData.value = table.data.list;

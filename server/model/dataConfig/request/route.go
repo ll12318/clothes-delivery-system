@@ -10,6 +10,7 @@ type RouteSearch struct {
 	EndCreatedAt   *time.Time `json:"endCreatedAt" form:"endCreatedAt"`
 	Urgent         *bool      `json:"urgent" form:"urgent"`
 	RouteName      string     `json:"routeName" form:"routeName" `
+	UserIds        string     `json:"userIds" form:"userIds"`
 	request.PageInfo
 	Sort  string `json:"sort" form:"sort"`
 	Order string `json:"order" form:"order"`

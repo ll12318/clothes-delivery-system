@@ -12,8 +12,8 @@ type Route struct {
 	RouteName string         `json:"routeName" form:"routeName" gorm:"column:route_name;comment:;" binding:"required"` //路线名称
 	Remarks   string         `json:"remarks" form:"remarks" gorm:"column:remarks;comment:;"`                           //备注
 	Stalls    []Stall        `json:"stalls" gorm:"foreignKey:RouteId;references:ID"`
-	User      system.SysUser `json:"user" gorm:"foreignKey:UserId;references:ID"`
-	UserId    uint           `json:"userId" form:"userId" gorm:"column:user_id;comment:;"`
+	User      system.SysUser `json:"user" gorm:"foreignKey:UserId;references:ID"`             // 拿货人
+	UserId    uint           `json:"userId" form:"userId" gorm:"column:user_id;comment:;"`    // 拿货人ID
 	Urgent    *bool          `json:"urgent" form:"urgent" gorm:"column:urgent;comment:是否加急;"` // 是否紧急
 }
 
