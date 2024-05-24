@@ -22,6 +22,7 @@ type GoodBill struct {
 	Urgent              *bool                        `json:"urgent" form:"urgent" gorm:"column:urgent;comment:是否加急;"` // 是否紧急
 	TakeGoodPeople      system.SysUser               `json:"takeGoodPeople" form:"takeGoodPeople" gorm:"foreignKey:TakeGoodPeopleId;references:ID"`
 	TakeGoodPeopleId    uint                         `json:"takeGoodPeopleId" form:"takeGoodPeopleId" gorm:"column:take_good_people_id;comment: 拿货人id;"`
+	TakeGoodNum         int                          `json:"takeGoodNum" form:"takeGoodNum" gorm:"column:take_good_num;comment:拿货数量;"` // 拿货数量
 }
 
 // TableName 货单 GoodBill自定义表名 good_bill

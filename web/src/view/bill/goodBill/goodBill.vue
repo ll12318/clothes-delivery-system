@@ -76,7 +76,7 @@
       >
         <el-table-column type="selection" width="55" />
 
-        <el-table-column align="left" label="日期" width="180">
+        <el-table-column align="left" label="下单日期" width="180">
           <template #default="scope">{{
             formatDate(scope.row.CreatedAt)
           }}</template>
@@ -138,6 +138,12 @@
           align="left"
           label="档口价格"
           prop="stall.price"
+          width="120"
+        />
+        <el-table-column
+          align="left"
+          label="拿货数量"
+          prop="takeGoodNum"
           width="120"
         />
         <el-table-column align="left" label="备注" prop="remarks" width="120" />
@@ -222,7 +228,14 @@
             ></el-option>
           </el-select>
         </el-form-item>
-
+        <el-form-item label="拿货数量:" prop="takeGoodNum">
+          <el-input-number
+            style="width: 200px"
+            v-model="formData.takeGoodNum"
+            :clearable="true"
+            placeholder="请输入拿货数量"
+          />
+        </el-form-item>
         <el-form-item label="备注:" prop="remarks">
           <el-input
             v-model="formData.remarks"
