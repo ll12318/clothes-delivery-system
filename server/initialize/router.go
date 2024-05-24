@@ -86,6 +86,7 @@ func Routers() *gin.Engine {
 		dataConfigRouter.InitMarketRouter(PrivateGroup, PublicGroup)
 		dataConfigRouter.InitStallRouter(PrivateGroup, PublicGroup)
 		dataConfigRouter.InitRouteRouter(PrivateGroup, PublicGroup)
+		dataConfigRouter.InitGoodBillStatusRouter(PrivateGroup, PublicGroup)
 
 	}
 	{

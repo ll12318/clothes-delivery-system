@@ -192,6 +192,14 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "货单", Method: "DELETE", Path: "/gb/deleteGoodBillByIds", Description: "批量删除货单"},
 		{ApiGroup: "货单", Method: "POST", Path: "/gb/createGoodBill", Description: "新增货单"},
 		{ApiGroup: "货单", Method: "PUT", Path: "/gb/updateGoodBill", Description: "更新货单"},
+
+		// 货单状态
+		{ApiGroup: "货单状态", Method: "GET", Path: "/gbs/findGoodBillStatus", Description: "根据ID获取货单状态"},
+		{ApiGroup: "货单状态", Method: "GET", Path: "/gbs/getGoodBillStatusList", Description: "获取货单状态列表"},
+		{ApiGroup: "货单状态", Method: "DELETE", Path: "/gbs/deleteGoodBillStatus", Description: "删除货单状态"},
+		{ApiGroup: "货单状态", Method: "DELETE", Path: "/gbs/deleteGoodBillStatusByIds", Description: "批量删除货单状态"},
+		{ApiGroup: "货单状态", Method: "POST", Path: "/gbs/createGoodBillStatus", Description: "新增货单状态"},
+		{ApiGroup: "货单状态", Method: "PUT", Path: "/gbs/updateGoodBillStatus", Description: "更新货单状态"},
 	}
 	if err := db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, sysModel.SysApi{}.TableName()+"表数据初始化失败!")

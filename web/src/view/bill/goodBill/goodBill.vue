@@ -149,6 +149,20 @@
         <el-table-column align="left" label="备注" prop="remarks" width="120" />
         <el-table-column
           align="left"
+          label="完成状态"
+          prop="finishStatus"
+          width="120"
+        >
+          <template #default="scope">
+            <el-switch
+              v-model="scope.row.finishStatus"
+              :disabled="!btnAuth.takeGoodPeopleInp"
+              @change="finishStatusChange(scope.row)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="left"
           fixed="right"
           label="操作"
           min-width="180"
@@ -536,6 +550,14 @@ const takeGoodPeopleInpChange = async (val) => {
   });
 };
 const urgentChange = () => queryStallList();
+
+const finishStatusChange = async (val) => {
+  await updateGoodBill(val);
+  ElMessage({
+    type: "success",
+    message: "完成状态修改成功",
+  });
+};
 </script>
 
 <style></style>
