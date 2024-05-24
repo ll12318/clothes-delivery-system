@@ -5,8 +5,8 @@
         ref="elSearchFormRef"
         :inline="true"
         :model="searchInfo"
-        class="demo-form-inline"
         :rules="searchRule"
+        class="demo-form-inline"
         @keyup.enter="onSubmit"
       >
         <el-form-item label="创建日期" prop="createdAt">
@@ -22,26 +22,26 @@
           </template>
           <el-date-picker
             v-model="searchInfo.startCreatedAt"
-            type="datetime"
-            placeholder="开始日期"
             :disabled-date="
               (time) =>
                 searchInfo.endCreatedAt
                   ? time.getTime() > searchInfo.endCreatedAt.getTime()
                   : false
             "
+            placeholder="开始日期"
+            type="datetime"
           ></el-date-picker>
           —
           <el-date-picker
             v-model="searchInfo.endCreatedAt"
-            type="datetime"
-            placeholder="结束日期"
             :disabled-date="
               (time) =>
                 searchInfo.startCreatedAt
                   ? time.getTime() < searchInfo.startCreatedAt.getTime()
                   : false
             "
+            placeholder="结束日期"
+            type="datetime"
           ></el-date-picker>
         </el-form-item>
 
@@ -49,7 +49,7 @@
           <el-input v-model="searchInfo.routeName" placeholder="搜索条件" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="search" @click="onSubmit"
+          <el-button icon="search" type="primary" @click="onSubmit"
             >查询</el-button
           >
           <el-button icon="refresh" @click="onReset">重置</el-button>
@@ -58,23 +58,23 @@
     </div>
     <div class="gva-table-box">
       <div class="gva-btn-list">
-        <el-button type="primary" icon="plus" @click="openDialog"
+        <el-button icon="plus" type="primary" @click="openDialog"
           >新增</el-button
         >
         <el-button
+          :disabled="!multipleSelection.length"
           icon="delete"
           style="margin-left: 10px"
-          :disabled="!multipleSelection.length"
           @click="onDelete"
           >删除</el-button
         >
       </div>
       <el-table
         ref="multipleTable"
-        style="width: 100%"
-        tooltip-effect="dark"
         :data="tableData"
         row-key="ID"
+        style="width: 100%"
+        tooltip-effect="dark"
         @selection-change="handleSelectionChange"
         @sort-change="sortChange"
       >
@@ -87,17 +87,17 @@
         </el-table-column>
 
         <el-table-column
-          sortable
           align="left"
           label="路线名称"
           prop="routeName"
+          sortable
           width="120"
         />
         <el-table-column
           align="left"
           label="档口"
-          width="auto"
           show-overflow-tooltip
+          width="auto"
         >
           <template #default="scope">{{
             scope.row.stalls.map((item) => item.stall).join(",")
@@ -110,26 +110,27 @@
           prop="user.userName"
           width="120"
         />
+        <el-table-column align="left" label="加急" prop="urgent" width="120" />
         <el-table-column align="left" label="备注" prop="remarks" width="120" />
         <el-table-column
           align="left"
-          label="操作"
           fixed="right"
+          label="操作"
           min-width="240"
         >
           <template #default="scope">
             <el-button
-              type="primary"
-              link
-              icon="edit"
               class="table-button"
+              icon="edit"
+              link
+              type="primary"
               @click="updateRouteFunc(scope.row)"
               >变更</el-button
             >
             <el-button
-              type="primary"
-              link
               icon="delete"
+              link
+              type="primary"
               @click="deleteRow(scope.row)"
               >删除</el-button
             >
@@ -138,22 +139,22 @@
       </el-table>
       <div class="gva-pagination">
         <el-pagination
-          layout="total, sizes, prev, pager, next, jumper"
           :current-page="page"
           :page-size="pageSize"
           :page-sizes="[10, 30, 50, 100]"
           :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
           @current-change="handleCurrentChange"
           @size-change="handleSizeChange"
         />
       </div>
     </div>
     <el-drawer
+      v-model="dialogFormVisible"
+      :before-close="closeDialog"
+      :show-close="false"
       destroy-on-close
       size="800"
-      v-model="dialogFormVisible"
-      :show-close="false"
-      :before-close="closeDialog"
     >
       <template #header>
         <div class="flex items-center justify-between">
@@ -166,10 +167,10 @@
       </template>
 
       <el-form
-        :model="formData"
-        label-position="top"
         ref="elFormRef"
+        :model="formData"
         :rules="rule"
+        label-position="top"
         label-width="80px"
       >
         <el-form-item label="路线名称:" prop="routeName">
@@ -179,14 +180,20 @@
             placeholder="请输入路线名称"
           />
         </el-form-item>
-        <el-form-item label="档口" prop="stalls">
+        <el-form-item label="加急:" prop="urgent">
+          <el-switch v-model="formData.urgent" @change="urgentChange" />
+        </el-form-item>
+        <el-form-item
+          :label="formData.urgent ? '加急档口' : '档口'"
+          prop="stalls"
+        >
           <el-select
             v-model="formData.stalls"
             :clearable="true"
+            :placeholder="formData.urgent ? '请选择加急档口' : '请选择档口'"
+            filterable
             multiple
             value-key="ID"
-            filterable
-            placeholder="请选择档口"
           >
             <el-option
               v-for="(item, index) in stallOption"
@@ -200,9 +207,9 @@
           <el-select
             v-model="formData.user"
             :clearable="true"
-            value-key="ID"
             filterable
             placeholder="请选择司机"
+            value-key="ID"
           >
             <el-option
               v-for="(item, index) in userOption"
@@ -257,6 +264,7 @@ const formData = ref({
   routeName: "",
   remarks: "",
   stalls: null,
+  urgent: false,
 });
 
 const stallOption = ref([]);
@@ -265,6 +273,7 @@ const queryStallList = async () => {
   const res = await getStallList({
     page: 1,
     pageSize: 1000,
+    urgent: formData.value.urgent,
     filterOccupancy: true,
   });
   stallOption.value = res.data.list;
@@ -537,6 +546,8 @@ const enterDialog = async () => {
     }
   });
 };
+
+const urgentChange = () => queryStallList();
 </script>
 
 <style></style>

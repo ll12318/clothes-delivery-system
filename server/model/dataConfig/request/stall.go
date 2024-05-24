@@ -13,6 +13,7 @@ type StallSearch struct {
 	StallNumber     string `json:"stallNumber" form:"stallNumber" `
 	MarketId        uint   `json:"marketId" form:"marketId" `
 	FilterOccupancy bool   `json:"filterOccupancy" form:"filterOccupancy"`
+	Urgent          *bool  `json:"urgent" form:"urgent"`
 	request.PageInfo
 	Sort  string `json:"sort" form:"sort"`
 	Order string `json:"order" form:"order"`

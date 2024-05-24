@@ -64,6 +64,11 @@ func (stallService *StallService) GetStallInfoList(info dataConfigReq.StallSearc
 			db = db.Where("market_id = ?", info.MarketId)
 		}
 	}
+
+	if info.Urgent != nil {
+		db = db.Where("urgent = ?", info.Urgent)
+	}
+
 	if info.Stall != "" {
 		db = db.Where("stall LIKE ?", "%"+info.Stall+"%")
 	}

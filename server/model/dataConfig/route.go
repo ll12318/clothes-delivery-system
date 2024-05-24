@@ -14,6 +14,7 @@ type Route struct {
 	Stalls    []Stall        `json:"stalls" gorm:"foreignKey:RouteId;references:ID"`
 	User      system.SysUser `json:"user" gorm:"foreignKey:UserId;references:ID"`
 	UserId    uint           `json:"userId" form:"userId" gorm:"column:user_id;comment:;"`
+	Urgent    *bool          `json:"urgent" form:"urgent" gorm:"column:urgent;comment:是否加急;"` // 是否紧急
 }
 
 // TableName 路线 Route自定义表名 route

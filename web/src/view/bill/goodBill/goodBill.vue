@@ -5,8 +5,8 @@
         ref="elSearchFormRef"
         :inline="true"
         :model="searchInfo"
-        class="demo-form-inline"
         :rules="searchRule"
+        class="demo-form-inline"
         @keyup.enter="onSubmit"
       >
         <el-form-item label="创建日期" prop="createdAt">
@@ -22,31 +22,31 @@
           </template>
           <el-date-picker
             v-model="searchInfo.startCreatedAt"
-            type="datetime"
-            placeholder="开始日期"
             :disabled-date="
               (time) =>
                 searchInfo.endCreatedAt
                   ? time.getTime() > searchInfo.endCreatedAt.getTime()
                   : false
             "
+            placeholder="开始日期"
+            type="datetime"
           ></el-date-picker>
           —
           <el-date-picker
             v-model="searchInfo.endCreatedAt"
-            type="datetime"
-            placeholder="结束日期"
             :disabled-date="
               (time) =>
                 searchInfo.startCreatedAt
                   ? time.getTime() < searchInfo.startCreatedAt.getTime()
                   : false
             "
+            placeholder="结束日期"
+            type="datetime"
           ></el-date-picker>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" icon="search" @click="onSubmit"
+          <el-button icon="search" type="primary" @click="onSubmit"
             >查询</el-button
           >
           <el-button icon="refresh" @click="onReset">重置</el-button>
@@ -55,23 +55,23 @@
     </div>
     <div class="gva-table-box">
       <div class="gva-btn-list">
-        <el-button type="primary" icon="plus" @click="openDialog"
+        <el-button icon="plus" type="primary" @click="openDialog"
           >新增</el-button
         >
         <el-button
+          :disabled="!multipleSelection.length"
           icon="delete"
           style="margin-left: 10px"
-          :disabled="!multipleSelection.length"
           @click="onDelete"
           >删除</el-button
         >
       </div>
       <el-table
         ref="multipleTable"
-        style="width: 100%"
-        tooltip-effect="dark"
         :data="tableData"
         row-key="ID"
+        style="width: 100%"
+        tooltip-effect="dark"
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" />
@@ -105,7 +105,7 @@
           align="left"
           label="拿货人"
           prop="takeGoodPeople.nickName"
-          width="220"
+          width="180"
         >
           <template #default="scope">
             <div>
@@ -134,26 +134,32 @@
           width="120"
         />
         <el-table-column align="left" label="加急" prop="urgent" width="120" />
+        <el-table-column
+          align="left"
+          label="档口价格"
+          prop="stall.price"
+          width="120"
+        />
         <el-table-column align="left" label="备注" prop="remarks" width="120" />
         <el-table-column
           align="left"
-          label="操作"
           fixed="right"
-          min-width="240"
+          label="操作"
+          min-width="180"
         >
           <template #default="scope">
             <el-button
-              type="primary"
-              link
-              icon="edit"
               class="table-button"
+              icon="edit"
+              link
+              type="primary"
               @click="updateGoodBillFunc(scope.row)"
               >变更</el-button
             >
             <el-button
-              type="primary"
-              link
               icon="delete"
+              link
+              type="primary"
               @click="deleteRow(scope.row)"
               >删除</el-button
             >
@@ -162,22 +168,22 @@
       </el-table>
       <div class="gva-pagination">
         <el-pagination
-          layout="total, sizes, prev, pager, next, jumper"
           :current-page="page"
           :page-size="pageSize"
           :page-sizes="[10, 30, 50, 100]"
           :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
           @current-change="handleCurrentChange"
           @size-change="handleSizeChange"
         />
       </div>
     </div>
     <el-drawer
+      v-model="dialogFormVisible"
+      :before-close="closeDialog"
+      :show-close="false"
       destroy-on-close
       size="800"
-      v-model="dialogFormVisible"
-      :show-close="false"
-      :before-close="closeDialog"
     >
       <template #header>
         <div class="flex items-center justify-between">
@@ -190,14 +196,24 @@
       </template>
 
       <el-form
-        :model="formData"
-        label-position="top"
         ref="elFormRef"
+        :model="formData"
         :rules="rule"
+        label-position="top"
         label-width="80px"
       >
-        <el-form-item label="档口" prop="stall">
-          <el-select v-model="formData.stall" placeholder="" value-key="ID">
+        <el-form-item label="加急:" prop="urgent">
+          <el-switch v-model="formData.urgent" @change="urgentChange" />
+        </el-form-item>
+        <el-form-item
+          :label="formData.urgent ? '加急档口' : '档口'"
+          prop="stall"
+        >
+          <el-select
+            v-model="formData.stall"
+            :placeholder="formData.urgent ? '请选择加急档口' : '请选择档口'"
+            value-key="ID"
+          >
             <el-option
               v-for="stall in stallOptions"
               :key="stall.ID"
@@ -206,9 +222,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="加急:" prop="urgent">
-          <el-switch v-model="formData.urgent" />
-        </el-form-item>
+
         <el-form-item label="备注:" prop="remarks">
           <el-input
             v-model="formData.remarks"
@@ -259,6 +273,7 @@ defineOptions({
 const formData = ref({
   remarks: "",
   stall: null,
+  urgent: false,
 });
 
 // 验证规则
@@ -311,6 +326,7 @@ const queryStallList = async () => {
   const table = await getStallList({
     page: page.value,
     pageSize: pageSize.value,
+    urgent: formData.value.urgent,
   });
   stallOptions.value = table.data.list;
 };
@@ -513,6 +529,7 @@ const takeGoodPeopleInpChange = async (val) => {
     message: "拿货人修改成功",
   });
 };
+const urgentChange = () => queryStallList();
 </script>
 
 <style></style>
