@@ -85,7 +85,7 @@ hua-wei-obs:
     access-key: you-access-key
     secret-key: you-secret-key
 jwt:
-    signing-key: d4ada68e-1a2f-4719-9b9c-9fd553fd5e23
+    signing-key: eb0d6584-41b2-4e91-ae9a-c47e4b7d63c8
     expires-time: 7d
     buffer-time: 1d
     issuer: qmPlus
@@ -128,8 +128,8 @@ mysql:
     db-name: clothes-delivery-system
     username: root
     password: Liuli5201314
-    path: localhost
-#    path: 114.55.36.11
+    path: 127.0.0.1
+    #    path: 114.55.36.11
     engine: ""
     log-mode: error
     max-idle-conns: 10

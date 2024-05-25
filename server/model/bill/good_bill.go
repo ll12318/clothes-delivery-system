@@ -12,7 +12,7 @@ import (
 type GoodBill struct {
 	global.GVA_MODEL
 	Remarks             string                       `json:"remarks" form:"remarks" gorm:"column:remarks;comment:;"` //备注
-	CreatedByUserInfo   system.SysUser               `json:"-" form:"createdByUserInfo" gorm:"foreignKey:CreatedBy;references:ID"`
+	CreatedByUserInfo   system.SysUser               `json:"createdByUserInfo" form:"createdByUserInfo" gorm:"foreignKey:CreatedBy;references:ID"`
 	CreatedBy           uint                         `json:"-" gorm:"column:created_by;comment:创建者"`
 	UpdatedBy           uint                         `json:"-" gorm:"column:updated_by;comment:更新者"`
 	DeletedBy           uint                         `json:"-" gorm:"column:deleted_by;comment:删除者"`
@@ -22,8 +22,15 @@ type GoodBill struct {
 	Urgent              *bool                        `json:"urgent" form:"urgent" gorm:"column:urgent;comment:是否加急;"` // 是否紧急
 	TakeGoodPeople      system.SysUser               `json:"takeGoodPeople" form:"takeGoodPeople" gorm:"foreignKey:TakeGoodPeopleId;references:ID"`
 	TakeGoodPeopleId    uint                         `json:"takeGoodPeopleId" form:"takeGoodPeopleId" gorm:"column:take_good_people_id;comment: 拿货人id;"`
-	TakeGoodNum         int                          `json:"takeGoodNum" form:"takeGoodNum" gorm:"column:take_good_num;comment:拿货数量;"`   // 拿货数量
-	FinishStatus        *bool                        `json:"finishStatus" form:"finishStatus" gorm:"column:finish_status;comment:完成状态;"` // 完成状态
+	TakeGoodNum         int                          `json:"takeGoodNum" form:"takeGoodNum" gorm:"column:take_good_num;comment:拿货数量;"`                   // 拿货数量
+	FinishStatus        *bool                        `json:"finishStatus" form:"finishStatus" gorm:"column:finish_status;comment:完成状态;"`                 // 完成状态
+	GoodBillStatus      dataConfig.GoodBillStatus    `json:"goodBillStatus" gorm:"foreignKey:GoodBillStatusId;references:ID"`                            // 货单状态
+	GoodBillStatusId    uint                         `json:"goodBillStatusId" form:"goodBillStatusId" gorm:"column:good_bill_status_id;comment:货单状态id;"` // 货单状态id
+	FinishTime          string                       `json:"finishTime" form:"finishTime" gorm:"column:finish_time;comment:完成时间;"`                       // 完成时间
+	FinishPeople        system.SysUser               `json:"finishPeople" form:"finishPeople" gorm:"foreignKey:FinishPeopleId;references:ID"`
+	FinishPeopleId      uint                         `json:"finishPeopleId" form:"finishPeopleId" gorm:"column:finish_people_id;comment:完成人id;"` // 完成人id
+	Market              dataConfig.Market            `json:"market" gorm:"foreignKey:MarketId;references:ID"`
+	MarketId            uint                         `json:"marketId" form:"marketId" gorm:"column:market_id;comment:市场id;"`
 }
 
 // TableName 货单 GoodBill自定义表名 good_bill

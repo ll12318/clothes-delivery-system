@@ -147,6 +147,28 @@
           width="120"
         />
         <el-table-column align="left" label="备注" prop="remarks" width="120" />
+        <el-table-column align="left" label="货单状态" width="180">
+          <template #default="scope">
+            <div>
+              <el-select
+                v-if="btnAuth.takeGoodPeopleInp"
+                v-model="scope.row.goodBillStatus"
+                filterable
+                placeholder="请选货单状态"
+                @change="goodBillStatusChange(scope.row)"
+                value-key="ID"
+              >
+                <el-option
+                  v-for="(item, index) in goodBillStatusOption"
+                  :key="index"
+                  :label="item.name"
+                  :value="item"
+                />
+              </el-select>
+              <span v-else>{{ scope.row.goodBillStatus.name }}</span>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column
           align="left"
           label="完成状态"
@@ -161,6 +183,16 @@
             />
           </template>
         </el-table-column>
+        <el-table-column
+          label="完成时间"
+          prop="finishTime"
+          width="180"
+        ></el-table-column>
+        <el-table-column
+          label="完成人"
+          prop="finishPeople.nickName"
+          width="180"
+        ></el-table-column>
         <el-table-column
           align="left"
           fixed="right"
@@ -271,7 +303,7 @@ import {
   getGoodBillList,
   updateGoodBill,
 } from "@/api/bill/goodBill";
-
+import { getGoodBillStatusList } from "@/api/dataConfig/goodBillStatus";
 // 全量引入格式化工具 请按需保留
 import { formatDate } from "@/utils/format";
 
@@ -281,6 +313,7 @@ import { getStallList } from "@/api/dataConfig/stall";
 import { getUserList } from "@/api/user";
 
 import { useBtnAuth } from "@/utils/btnAuth";
+import { set } from "nprogress";
 
 const btnAuth = useBtnAuth();
 console.log("🚀 ~ btnAuth:", btnAuth.takeGoodPeopleInp);
@@ -362,7 +395,17 @@ const queryUserList = async () => {
   });
   userOption.value = res.data.list;
 };
+
 if (btnAuth.takeGoodPeopleInp) queryUserList();
+const goodBillStatusOption = ref([]);
+const queryGoodBillStatus = async () => {
+  const res = await getGoodBillStatusList({
+    page: 1,
+    pageSize: 1000,
+  });
+  goodBillStatusOption.value = res.data.list;
+};
+queryGoodBillStatus();
 // 重置
 const onReset = () => {
   searchInfo.value = {};
@@ -404,6 +447,10 @@ const getTableData = async () => {
     page.value = table.data.page;
     pageSize.value = table.data.pageSize;
   }
+  dataChangeIng.value = true;
+  setTimeout(() => {
+    dataChangeIng.value = false;
+  }, 1000);
 };
 
 getTableData();
@@ -512,6 +559,8 @@ const closeDialog = () => {
     stall: null,
   };
 };
+
+const dataChangeIng = ref(false);
 // 弹窗确定
 const enterDialog = async () => {
   elFormRef.value?.validate(async (valid) => {
@@ -531,6 +580,7 @@ const enterDialog = async () => {
         res = await createGoodBill(formData.value);
         break;
     }
+
     if (res.code === 0) {
       ElMessage({
         type: "success",
@@ -552,11 +602,25 @@ const takeGoodPeopleInpChange = async (val) => {
 const urgentChange = () => queryStallList();
 
 const finishStatusChange = async (val) => {
+  if (dataChangeIng.value) return;
   await updateGoodBill(val);
   ElMessage({
     type: "success",
     message: "完成状态修改成功",
   });
+  onSubmit();
+};
+
+const goodBillStatusChange = async (val) => {
+  await updateGoodBill({
+    ...val,
+    goodBillStatusId: val.goodBillStatus.ID,
+  });
+  ElMessage({
+    type: "success",
+    message: "货单状态修改成功",
+  });
+  onSubmit();
 };
 </script>
 

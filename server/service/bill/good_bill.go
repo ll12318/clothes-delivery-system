@@ -4,12 +4,14 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/bill"
 	billReq "github.com/flipped-aurora/gin-vue-admin/server/model/bill/request"
+	dataConfigModel "github.com/flipped-aurora/gin-vue-admin/server/model/dataConfig"
 	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/dataConfig"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
 	"strconv"
+	time2 "time"
 )
 
 type GoodBillService struct {
@@ -28,6 +30,11 @@ func (gbService *GoodBillService) CreateGoodBill(gb *bill.GoodBill) (err error) 
 		if route.User.ID != 0 {
 			gb.TakeGoodPeopleId = route.User.ID
 		}
+	}
+	marketId := gb.Stall.MarketId
+	if marketId != 0 {
+		gb.MarketId = marketId
+		gb.Market = gb.Stall.Market
 	}
 
 	err = global.GVA_DB.Create(gb).Error
@@ -66,7 +73,25 @@ func (gbService *GoodBillService) DeleteGoodBillByIds(IDs []string, deleted_by u
 
 // UpdateGoodBill 更新货单记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (gbService *GoodBillService) UpdateGoodBill(gb bill.GoodBill) (err error) {
+func (gbService *GoodBillService) UpdateGoodBill(gb bill.GoodBill, userUuid uuid.UUID) (err error) {
+	b := *gb.FinishStatus == true
+	if b {
+		if gb.FinishTime == "" {
+			// 如果完成状态为true，设置完成时间为当前时间
+			time := time2.Now()
+			gb.FinishTime = time.Format("2006-01-02 15:04:05")
+		}
+		if gb.FinishPeopleId == 0 {
+			// 如果完成状态为true，设置完成人为当前调用者
+			userService := system.UserService{}
+			userInfo, err := userService.GetUserInfo(userUuid)
+			// 如果获取用户信息失败
+			if err != nil {
+				return err
+			}
+			gb.FinishPeopleId = userInfo.ID
+		}
+	}
 	err = global.GVA_DB.Model(&bill.GoodBill{}).Where("id = ?", gb.ID).Updates(&gb).Error
 	return err
 }
@@ -84,7 +109,7 @@ func (gbService *GoodBillService) GetGoodBillInfoList(info billReq.GoodBillSearc
 
 	db := global.GVA_DB.Model(&bill.GoodBill{}).Preload("CreatedByUserInfo", func(db *gorm.DB) *gorm.DB {
 		return db.Select("id", "nick_name") // 选择需要的字段
-	}).Preload("Stall.Market").Preload("TakeGoodPeople")
+	}).Preload("Stall.Market").Preload("TakeGoodPeople").Preload("GoodBillStatus").Preload("FinishPeople")
 	// 查询用户的角色
 
 	userService := system.UserService{}
@@ -190,4 +215,75 @@ func (gbService *GoodBillService) GetGoodBillInfoListByUser(db *gorm.DB, info bi
 	gbService.handlerCreatedBySimpleUser(gbs)
 	return gbs, total, err
 
+}
+
+// getGoodBillMarketListByDriver
+func (gbService *GoodBillService) GetGoodBillMarketListByDriver(userId uint, info billReq.GoodBillMarketListSearch) (markets []dataConfigModel.Market, total int64, err error) {
+	var goodBills []bill.GoodBill
+
+	finishStatus := info.FinishStatus
+	db := global.GVA_DB.Model(&bill.GoodBill{})
+	if *finishStatus == true {
+		db.
+			Select("market_id").
+			Where("take_good_people_id = ? AND finish_status = ?", userId, true).
+			Preload("Market")
+	}
+
+	if *finishStatus == false {
+		db.
+			Select("market_id").
+			Where("take_good_people_id = ? AND finish_status IS NULL", userId).
+			Preload("Market")
+	}
+
+	// 查询TakeGoodPeopleId为userId的数据并且查询出MarketId的数据
+	err = db.
+		Find(&goodBills).
+		Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 获取 Market集合并去重
+	marketMap := make(map[uint]dataConfigModel.Market)
+	for _, goodBill := range goodBills {
+		marketMap[goodBill.MarketId] = goodBill.Market
+	}
+
+	// 转换 map 为 slice
+	for _, market := range marketMap {
+		markets = append(markets, market)
+	}
+
+	total = int64(len(markets))
+	return markets, total, nil
+}
+
+// GetGoodBillListByMarketId 根据marketId获取货单列表
+func (gbService *GoodBillService) GetGoodBillListByMarketId(userId uint, info billReq.GoodBillMarketListSearch) (goodBills []bill.GoodBill, total int64, err error) {
+	marketId := info.MarketId
+	finishStatus := info.FinishStatus
+	db := global.GVA_DB.Model(&bill.GoodBill{}).
+		Preload("CreatedByUserInfo", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "nick_name") // 选择需要的字段
+		}).
+		Preload("Stall.Market").
+		Preload("TakeGoodPeople").
+		Preload("GoodBillStatus").
+		Preload("FinishPeople").Preload("Market").
+		Where("market_id = ?  AND take_good_people_id = ?", marketId, userId)
+	if *finishStatus == true {
+		err = db.Where("finish_status = ?", true).
+			Find(&goodBills).Error
+		return goodBills, total, err
+	}
+	if *finishStatus == false {
+		err = db.Where("finish_status IS NULL").
+			Find(&goodBills).Error
+		return goodBills, total, err
+	}
+
+	return goodBills, total, err
 }

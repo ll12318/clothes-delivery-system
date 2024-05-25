@@ -98,8 +98,8 @@ func (gbApi *GoodBillApi) UpdateGoodBill(c *gin.Context) {
 		return
 	}
 	gb.UpdatedBy = utils.GetUserID(c)
-
-	if err := gbService.UpdateGoodBill(gb); err != nil {
+	userUuid := utils.GetUserUuid(c)
+	if err := gbService.UpdateGoodBill(gb, userUuid); err != nil {
 		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
@@ -175,5 +175,46 @@ func (gbApi *GoodBillApi) GetGoodBillPublic(c *gin.Context) {
 	// 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
 	response.OkWithDetailed(gin.H{
 		"info": "不需要鉴权的货单接口信息",
+	}, "获取成功", c)
+}
+
+// getGoodBillMarketListByDriver 司机端获取货单列表
+
+func (gbApi *GoodBillApi) GetGoodBillMarketListByDriver(c *gin.Context) {
+
+	var pageInfo billReq.GoodBillMarketListSearch
+	err := c.ShouldBindQuery(&pageInfo)
+	userID := utils.GetUserID(c)
+
+	list, total, err := gbService.GetGoodBillMarketListByDriver(userID, pageInfo)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:  list,
+		Total: total,
+	}, "获取成功", c)
+}
+
+// getGoodBillListByMarketId 根据marketId获取货单列表
+func (gbApi *GoodBillApi) GetGoodBillListByMarketId(c *gin.Context) {
+	var pageInfo billReq.GoodBillMarketListSearch
+	err := c.ShouldBindQuery(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	userID := utils.GetUserID(c)
+	list, total, err := gbService.GetGoodBillListByMarketId(userID, pageInfo)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:  list,
+		Total: total,
 	}, "获取成功", c)
 }
