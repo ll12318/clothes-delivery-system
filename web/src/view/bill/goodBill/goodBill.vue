@@ -239,6 +239,7 @@
         >
           <template #default="scope">
             <el-button
+              v-if="btnAuth.takeGoodPeopleInp"
               class="table-button"
               icon="edit"
               link
@@ -327,7 +328,11 @@
             placeholder="请输入备注"
           />
         </el-form-item>
-        <upload-image button-name="上传图片" @on-success="getImageList" />
+        <upload-image
+          v-if="btnAuth.uploadImage"
+          button-name="上传图片"
+          @on-success="getImageList"
+        />
         <div
           style="
             display: grid;
@@ -564,6 +569,17 @@ const handleSelectionChange = (val) => {
 
 // 删除行
 const deleteRow = (row) => {
+  console.log(row.CreatedAt, "row");
+  // 计算下单时间有没有超过半小时
+  const time = new Date().getTime() - new Date(row.CreatedAt).getTime();
+  if (time > 1000 * 60 * 30) {
+    ElMessage({
+      type: "warning",
+      message: "下单时间超过半小时，不可删除，请联系管理员",
+      duration: 3000,
+    });
+    return;
+  }
   ElMessageBox.confirm("确定要删除吗?", "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
