@@ -129,7 +129,8 @@ mysql:
     username: root
     password: Liuli5201314
     path: 127.0.0.1
-    #    path: 114.55.36.11
+#    path: 114.55.36.11
+#    path: 100.120.119.60
     engine: ""
     log-mode: error
     max-idle-conns: 10

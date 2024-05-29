@@ -122,6 +122,10 @@ func (gbService *GoodBillService) GetGoodBillInfoList(info billReq.GoodBillSearc
 	isAdmin := false
 	isUser := false
 	isDriver := false
+	// 搜索下单人
+	if info.CreatedBy != 0 {
+		db = db.Where("created_by = ?", info.CreatedBy)
+	}
 
 	// 判断用户角色是不是超级管理员 管理员 888 用户998 司机999
 	for _, authority := range authorities {

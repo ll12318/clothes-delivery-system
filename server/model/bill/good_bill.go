@@ -31,6 +31,7 @@ type GoodBill struct {
 	FinishPeopleId      uint                         `json:"finishPeopleId" form:"finishPeopleId" gorm:"column:finish_people_id;comment:完成人id;"` // 完成人id
 	Market              dataConfig.Market            `json:"market" gorm:"foreignKey:MarketId;references:ID"`
 	MarketId            uint                         `json:"marketId" form:"marketId" gorm:"column:market_id;comment:市场id;"`
+	Images              string                       `json:"images" form:"images" gorm:"column:images;comment:图片;type:longtext;"`
 }
 
 // TableName 货单 GoodBill自定义表名 good_bill

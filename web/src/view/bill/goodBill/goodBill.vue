@@ -45,6 +45,25 @@
           ></el-date-picker>
         </el-form-item>
 
+        <el-form-item
+          v-if="btnAuth.takeGoodPeopleInp"
+          label="下单人"
+          prop="routeName"
+        >
+          <el-select
+            v-model="searchInfo.createdBy"
+            clearable
+            filterable
+            placeholder="请选择下单人"
+          >
+            <el-option
+              v-for="(item, index) in createdOption"
+              :key="index"
+              :label="item.userName"
+              :value="item.ID"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button icon="search" type="primary" @click="onSubmit"
             >查询</el-button
@@ -155,8 +174,8 @@
                 v-model="scope.row.goodBillStatus"
                 filterable
                 placeholder="请选货单状态"
-                @change="goodBillStatusChange(scope.row)"
                 value-key="ID"
+                @change="goodBillStatusChange(scope.row)"
               >
                 <el-option
                   v-for="(item, index) in goodBillStatusOption"
@@ -276,10 +295,10 @@
         </el-form-item>
         <el-form-item label="拿货数量:" prop="takeGoodNum">
           <el-input-number
-            style="width: 200px"
             v-model="formData.takeGoodNum"
             :clearable="true"
             placeholder="请输入拿货数量"
+            style="width: 200px"
           />
         </el-form-item>
         <el-form-item label="备注:" prop="remarks">
@@ -289,6 +308,41 @@
             placeholder="请输入备注"
           />
         </el-form-item>
+        <upload-image button-name="上传图片" @on-success="getImageList" />
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            margin-top: 10px;
+          "
+        >
+          <div
+            v-for="img in formData.images"
+            :key="img"
+            class="imgItem"
+            style="position: relative; width: 100px; height: 100px"
+          >
+            <el-icon
+              class="delete-icon"
+              style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 2;
+                font-size: 20px;
+              "
+              @click="deleteImage(img)"
+            >
+              <Delete />
+            </el-icon>
+            <el-image
+              :src="img"
+              fit="cover"
+              style="width: 100px; height: 100px"
+            />
+          </div>
+        </div>
       </el-form>
     </el-drawer>
   </div>
@@ -313,7 +367,7 @@ import { getStallList } from "@/api/dataConfig/stall";
 import { getUserList } from "@/api/user";
 
 import { useBtnAuth } from "@/utils/btnAuth";
-import { set } from "nprogress";
+import UploadImage from "@/components/upload/image.vue";
 
 const btnAuth = useBtnAuth();
 console.log("🚀 ~ btnAuth:", btnAuth.takeGoodPeopleInp);
@@ -322,11 +376,16 @@ defineOptions({
   name: "GoodBill",
 });
 
+const getImageList = (url) => {
+  formData.value.images.push(`api/${url}`);
+};
+
 // 自动化生成的字典（可能为空）以及字段
 const formData = ref({
   remarks: "",
   stall: null,
   urgent: false,
+  images: [],
 });
 
 // 验证规则
@@ -396,7 +455,21 @@ const queryUserList = async () => {
   userOption.value = res.data.list;
 };
 
-if (btnAuth.takeGoodPeopleInp) queryUserList();
+const createdOption = ref([]);
+
+const querycreatedList = async () => {
+  const res = await getUserList({
+    page: 1,
+    pageSize: 1000,
+    authorityIds: [998],
+  });
+  createdOption.value = res.data.list;
+};
+
+if (btnAuth.takeGoodPeopleInp) {
+  queryUserList();
+  querycreatedList();
+}
 const goodBillStatusOption = ref([]);
 const queryGoodBillStatus = async () => {
   const res = await getGoodBillStatusList({
@@ -523,6 +596,9 @@ const updateGoodBillFunc = async (row) => {
   type.value = "update";
   if (res.code === 0) {
     formData.value = res.data.regb;
+    formData.value.images = !formData.value.images
+      ? []
+      : JSON.parse(formData.value.images);
     dialogFormVisible.value = true;
   }
 };
@@ -557,6 +633,7 @@ const closeDialog = () => {
   formData.value = {
     remarks: "",
     stall: null,
+    images: [],
   };
 };
 
@@ -566,6 +643,7 @@ const enterDialog = async () => {
   elFormRef.value?.validate(async (valid) => {
     if (!valid) return;
     let res;
+    formData.value.images = JSON.stringify(formData.value.images);
     switch (type.value) {
       case "create":
         res = await createGoodBill(formData.value);
@@ -622,6 +700,18 @@ const goodBillStatusChange = async (val) => {
   });
   onSubmit();
 };
+
+const deleteImage = (img) => {
+  formData.value.images = formData.value.images.filter((item) => item !== img);
+};
 </script>
 
-<style></style>
+<style>
+.delete-icon {
+  display: none;
+}
+
+.imgItem:hover .delete-icon {
+  display: block;
+}
+</style>
