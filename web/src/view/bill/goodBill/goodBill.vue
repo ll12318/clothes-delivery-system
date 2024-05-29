@@ -105,17 +105,25 @@
       </el-form>
     </div>
     <div class="gva-table-box">
-      <div class="gva-btn-list">
-        <el-button icon="plus" type="primary" @click="openDialog"
-          >新增</el-button
-        >
-        <el-button
-          :disabled="!multipleSelection.length"
-          icon="delete"
-          style="margin-left: 10px"
-          @click="onDelete"
-          >删除</el-button
-        >
+      <div
+        class="gva-btn-list"
+        style="display: flex; justify-content: space-between"
+      >
+        <div>
+          <el-button icon="plus" type="primary" @click="openDialog"
+            >新增</el-button
+          >
+          <el-button
+            :disabled="!multipleSelection.length"
+            icon="delete"
+            style="margin-left: 10px"
+            @click="onDelete"
+            >删除</el-button
+          >
+        </div>
+        <div>
+          <div>合计金额： {{ totalAmount }}</div>
+        </div>
       </div>
       <el-table
         ref="multipleTable"
@@ -274,7 +282,7 @@
         <el-pagination
           :current-page="page"
           :page-size="pageSize"
-          :page-sizes="[10, 30, 50, 100]"
+          :page-sizes="[10, 30, 50, 100, 500, 1000, 2000]"
           :total="total"
           layout="total, sizes, prev, pager, next, jumper"
           @current-change="handleCurrentChange"
@@ -399,7 +407,7 @@ import { getGoodBillStatusList } from "@/api/dataConfig/goodBillStatus";
 import { formatDate } from "@/utils/format";
 
 import { ElMessage, ElMessageBox } from "element-plus";
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { getStallList } from "@/api/dataConfig/stall";
 import { getUserList } from "@/api/user";
 
@@ -470,6 +478,12 @@ const tableData = ref([]);
 const searchInfo = ref({});
 
 const stallOptions = ref([]);
+
+const totalAmount = computed(() => {
+  return tableData.value.reduce((total, item) => {
+    return total + item.stall.price;
+  }, 0);
+});
 
 const queryStallList = async () => {
   const table = await getStallList({
