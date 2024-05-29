@@ -2,7 +2,6 @@ package system
 
 import (
 	"context"
-
 	. "github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
 	"github.com/pkg/errors"
@@ -81,6 +80,21 @@ func (i *initMenu) InitializeData(ctx context.Context) (next context.Context, er
 		{MenuLevel: 0, Hidden: false, ParentId: 24, Path: "pubPlug", Name: "pubPlug", Component: "view/systemTools/pubPlug/pubPlug.vue", Sort: 3, Meta: Meta{Title: "打包插件", Icon: "files"}},
 		{MenuLevel: 0, Hidden: false, ParentId: 24, Path: "plugin-email", Name: "plugin-email", Component: "plugin/email/view/index.vue", Sort: 4, Meta: Meta{Title: "邮件插件", Icon: "message"}},
 		{MenuLevel: 0, Hidden: false, ParentId: 15, Path: "exportTemplate", Name: "exportTemplate", Component: "view/systemTools/exportTemplate/exportTemplate.vue", Sort: 10, Meta: Meta{Title: "表格模板", Icon: "reading"}},
+
+		// 市场
+		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "market", Name: "market", Component: "view/dataConfig/market/market.vue", Sort: 1, Meta: Meta{Title: "市场", Icon: "odometer", KeepAlive: false}},
+
+		// 档口
+		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "stall", Name: "stall", Component: "view/dataConfig/stall/stall.vue", Sort: 2, Meta: Meta{Title: "档口", Icon: "odometer", KeepAlive: false}},
+
+		// 路线
+		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "route", Name: "route", Component: "view/dataConfig/route/route.vue", Sort: 3, Meta: Meta{Title: "路线", Icon: "odometer", KeepAlive: false}},
+
+		// 货单
+		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "order", Name: "order", Component: "view/bill/goodBill/goodBill.vue", Sort: 4, Meta: Meta{Title: "货单", Icon: "odometer", KeepAlive: false}},
+
+		// 货单状态
+		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "orderStatus", Name: "orderStatus", Component: "view/dataConfig/goodBillStatus/goodBillStatus.vue", Sort: 5, Meta: Meta{Title: "货单状态", Icon: "odometer", KeepAlive: false}},
 	}
 	if err = db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, SysBaseMenu{}.TableName()+"表数据初始化失败!")

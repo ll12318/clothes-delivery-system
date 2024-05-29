@@ -7,8 +7,10 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/example"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 
+	"github.com/flipped-aurora/gin-vue-admin/server/model/dataConfig"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/bill"
 )
 
 func Gorm() *gorm.DB {
@@ -52,7 +54,7 @@ func RegisterTables() {
 		example.ExaFile{},
 		example.ExaCustomer{},
 		example.ExaFileChunk{},
-		example.ExaFileUploadAndDownload{},
+		example.ExaFileUploadAndDownload{}, dataConfig.Market{}, dataConfig.Stall{}, dataConfig.Route{}, bill.GoodBill{}, dataConfig.GoodBillStatus{},
 	)
 	if err != nil {
 		global.GVA_LOG.Error("register table failed", zap.Error(err))

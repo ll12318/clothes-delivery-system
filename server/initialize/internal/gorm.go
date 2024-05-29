@@ -58,5 +58,6 @@ func (g *_gorm) Config(prefix string, singular bool) *gorm.Config {
 	default:
 		config.Logger = _default.LogMode(logger.Info)
 	}
+	config.Logger = _default.LogMode(logger.Info)
 	return config
 }

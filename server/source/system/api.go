@@ -160,6 +160,50 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "表格模板", Method: "GET", Path: "/sysExportTemplate/exportExcel", Description: "导出Excel"},
 		{ApiGroup: "表格模板", Method: "GET", Path: "/sysExportTemplate/exportTemplate", Description: "下载模板"},
 		{ApiGroup: "表格模板", Method: "POST", Path: "/sysExportTemplate/importExcel", Description: "导入Excel"},
+
+		// 市场
+		{ApiGroup: "市场", Method: "GET", Path: "/market/getMarketList", Description: "获取市场列表"},
+		{ApiGroup: "市场", Method: "GET", Path: "/market/findMarket", Description: "根据ID获取市场"},
+		{ApiGroup: "市场", Method: "PUT", Path: "/market/updateMarket", Description: "更新市场"},
+		{ApiGroup: "市场", Method: "DELETE", Path: "/market/deleteMarketByIds", Description: "批量删除市场"},
+		{ApiGroup: "市场", Method: "DELETE", Path: "/market/deleteMarket", Description: "删除市场"},
+		{ApiGroup: "市场", Method: "POST", Path: "/market/createMarket", Description: "新增市场"},
+
+		// 档口
+		{ApiGroup: "档口", Method: "GET", Path: "/stall/getStallList", Description: "获取档口列表"},
+		{ApiGroup: "档口", Method: "GET", Path: "/stall/findStall", Description: "根据ID获取档口"},
+		{ApiGroup: "档口", Method: "PUT", Path: "/stall/updateStall", Description: "更新档口"},
+		{ApiGroup: "档口", Method: "DELETE", Path: "/stall/deleteStallByIds", Description: "批量删除档口"},
+		{ApiGroup: "档口", Method: "DELETE", Path: "/stall/deleteStall", Description: "删除档口"},
+		{ApiGroup: "档口", Method: "POST", Path: "/stall/createStall", Description: "新增档口"},
+
+		// 路线
+		{ApiGroup: "路线", Method: "GET", Path: "/route/findRoute", Description: "根据ID获取路线"},
+		{ApiGroup: "路线", Method: "GET", Path: "/route/getRouteList", Description: "获取路线列表"},
+		{ApiGroup: "路线", Method: "DELETE", Path: "/route/deleteRoute", Description: "删除路线"},
+		{ApiGroup: "路线", Method: "DELETE", Path: "/route/deleteRouteByIds", Description: "批量删除路线"},
+		{ApiGroup: "路线", Method: "POST", Path: "/route/createRoute", Description: "新增路线"},
+		{ApiGroup: "路线", Method: "PUT", Path: "/route/updateRoute", Description: "更新路线"},
+
+		// 货单
+		{ApiGroup: "货单", Method: "GET", Path: "/gb/findGoodBill", Description: "根据ID获取货单"},
+		{ApiGroup: "货单", Method: "GET", Path: "/gb/getGoodBillList", Description: "获取货单列表"},
+		{ApiGroup: "货单", Method: "DELETE", Path: "/gb/deleteGoodBill", Description: "删除货单"},
+		{ApiGroup: "货单", Method: "DELETE", Path: "/gb/deleteGoodBillByIds", Description: "批量删除货单"},
+		{ApiGroup: "货单", Method: "POST", Path: "/gb/createGoodBill", Description: "新增货单"},
+		{ApiGroup: "货单", Method: "PUT", Path: "/gb/updateGoodBill", Description: "更新货单"},
+		// 司机端获取货单列表
+		{ApiGroup: "货单", Method: "GET", Path: "/gb/getGoodBillMarketListByDriver", Description: "司机端获取货单列表"},
+		// 根据marketId获取货单列表
+		{ApiGroup: "货单", Method: "GET", Path: "/gb/getGoodBillListByMarketId", Description: "根据marketId获取货单列表"},
+
+		// 货单状态
+		{ApiGroup: "货单状态", Method: "GET", Path: "/gbs/findGoodBillStatus", Description: "根据ID获取货单状态"},
+		{ApiGroup: "货单状态", Method: "GET", Path: "/gbs/getGoodBillStatusList", Description: "获取货单状态列表"},
+		{ApiGroup: "货单状态", Method: "DELETE", Path: "/gbs/deleteGoodBillStatus", Description: "删除货单状态"},
+		{ApiGroup: "货单状态", Method: "DELETE", Path: "/gbs/deleteGoodBillStatusByIds", Description: "批量删除货单状态"},
+		{ApiGroup: "货单状态", Method: "POST", Path: "/gbs/createGoodBillStatus", Description: "新增货单状态"},
+		{ApiGroup: "货单状态", Method: "PUT", Path: "/gbs/updateGoodBillStatus", Description: "更新货单状态"},
 	}
 	if err := db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, sysModel.SysApi{}.TableName()+"表数据初始化失败!")

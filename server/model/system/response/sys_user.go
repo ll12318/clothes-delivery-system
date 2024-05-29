@@ -13,3 +13,8 @@ type LoginResponse struct {
 	Token     string         `json:"token"`
 	ExpiresAt int64          `json:"expiresAt"`
 }
+
+type CreatedBySimpleUser struct {
+	ID       uint   `json:"ID"`
+	NickName string `json:"nickName"`
+}
