@@ -83,6 +83,19 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="完成状态" prop="finishStatus">
+          <el-select v-model="searchInfo.finishStatus" clearable filterable>
+            <el-option
+              v-for="item in [
+                { label: '是', value: true },
+                { label: '否', value: false },
+              ]"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button icon="search" type="primary" @click="onSubmit"
             >查询</el-button

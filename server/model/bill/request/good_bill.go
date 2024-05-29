@@ -10,6 +10,7 @@ type GoodBillSearch struct {
 	EndCreatedAt     *time.Time `json:"endCreatedAt" form:"endCreatedAt"`
 	CreatedBy        uint       `json:"createdBy" form:"createdBy"`
 	TakeGoodPeopleId uint       `json:"takeGoodPeopleId" form:"takeGoodPeopleId"`
+	FinishStatus     *bool      `json:"finishStatus" form:"finishStatus"`
 
 	request.PageInfo
 }

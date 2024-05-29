@@ -131,6 +131,15 @@ func (gbService *GoodBillService) GetGoodBillInfoList(info billReq.GoodBillSearc
 		db = db.Where("take_good_people_id = ?", info.TakeGoodPeopleId)
 	}
 
+	if info.FinishStatus != nil {
+		if *info.FinishStatus == false {
+			db = db.Where("finish_status IS NULL OR finish_status = ?", *info.FinishStatus)
+		}
+		if *info.FinishStatus == true {
+			db = db.Where("finish_status = ?", *info.FinishStatus)
+		}
+	}
+
 	// 判断用户角色是不是超级管理员 管理员 888 用户998 司机999
 	for _, authority := range authorities {
 		authorityId := authority.AuthorityId

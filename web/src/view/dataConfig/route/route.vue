@@ -51,10 +51,10 @@
         <el-form-item label="司机" prop="routeName">
           <el-select
             v-model="searchInfo.userIds"
+            clearable
+            collapse-tags
             filterable
             multiple
-            collapse-tags
-            clearable
             placeholder="请选择司机"
           >
             <el-option
@@ -66,12 +66,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="加急" prop="urgent">
-          <el-select
-            v-model="searchInfo.urgent"
-            clearable
-            filterable
-            placeholder="请选择加急档口"
-          >
+          <el-select v-model="searchInfo.urgent" clearable filterable>
             <el-option
               v-for="item in [
                 { label: '是', value: true },
