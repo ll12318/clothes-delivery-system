@@ -114,6 +114,7 @@
             >新增</el-button
           >
           <el-button
+            v-if="btnAuth.takeGoodPeopleInp"
             :disabled="!multipleSelection.length"
             icon="delete"
             style="margin-left: 10px"
@@ -133,7 +134,11 @@
         tooltip-effect="dark"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column
+          v-if="btnAuth.takeGoodPeopleInp"
+          type="selection"
+          width="55"
+        />
 
         <el-table-column align="left" label="下单日期" width="180">
           <template #default="scope">{{
