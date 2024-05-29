@@ -32,6 +32,9 @@ type GoodBill struct {
 	Market              dataConfig.Market            `json:"market" gorm:"foreignKey:MarketId;references:ID"`
 	MarketId            uint                         `json:"marketId" form:"marketId" gorm:"column:market_id;comment:市场id;"`
 	Images              string                       `json:"images" form:"images" gorm:"column:images;comment:图片;type:longtext;"`
+	OrderMessage        string                       `json:"orderMessage" form:"orderMessage" gorm:"column:order_message;comment:下单人留言;type:longtext;"`   // 下单人留言
+	AdminMessage        string                       `json:"adminMessage" form:"adminMessage" gorm:"column:admin_message;comment:管理员留言;type:longtext;"`   // 管理员留言
+	DriverMessage       string                       `json:"driverMessage" form:"driverMessage" gorm:"column:driver_message;comment:司机留言;type:longtext;"` // 司机留言
 }
 
 // TableName 货单 GoodBill自定义表名 good_bill

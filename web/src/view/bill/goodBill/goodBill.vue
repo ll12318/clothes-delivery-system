@@ -206,6 +206,25 @@
           width="120"
         />
         <el-table-column align="left" label="备注" prop="remarks" width="120" />
+        <el-table-column
+          align="left"
+          label="下单人留言"
+          prop="orderMessage"
+          width="120"
+        />
+        <el-table-column
+          v-if="btnAuth.takeGoodPeopleInp"
+          align="left"
+          label="管理员留言"
+          prop="adminMessage"
+          width="120"
+        />
+        <el-table-column
+          align="left"
+          label="司机留言"
+          prop="driverMessage"
+          width="120"
+        />
         <el-table-column align="left" label="货单状态" width="180">
           <template #default="scope">
             <div>
@@ -340,6 +359,35 @@
             :clearable="true"
             placeholder="请输入拿货数量"
             style="width: 200px"
+          />
+        </el-form-item>
+        <el-form-item label="下单人留言:" prop="orderMessage">
+          <el-input
+            v-model="formData.orderMessage"
+            :clearable="true"
+            placeholder="请输入下单人留言"
+          />
+        </el-form-item>
+        <el-form-item
+          v-if="btnAuth.takeGoodPeopleInp"
+          label="管理员留言:"
+          prop="adminMessage"
+        >
+          <el-input
+            v-model="formData.adminMessage"
+            :clearable="true"
+            placeholder="请输入管理员留言"
+          />
+        </el-form-item>
+        <el-form-item
+          v-if="btnAuth.takeGoodPeopleInp"
+          label="司机留言:"
+          prop="driverMessage"
+        >
+          <el-input
+            v-model="formData.driverMessage"
+            :clearable="true"
+            placeholder="请输入司机留言"
           />
         </el-form-item>
         <el-form-item label="备注:" prop="remarks">
