@@ -48,7 +48,7 @@
         <el-form-item
           v-if="btnAuth.takeGoodPeopleInp"
           label="下单人"
-          prop="routeName"
+          prop="createdBy"
         >
           <el-select
             v-model="searchInfo.createdBy"
@@ -58,6 +58,25 @@
           >
             <el-option
               v-for="(item, index) in createdOption"
+              :key="index"
+              :label="item.nickName"
+              :value="item.ID"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          v-if="btnAuth.takeGoodPeopleInp"
+          label="拿货人"
+          prop="takeGoodPeopleId"
+        >
+          <el-select
+            v-model="searchInfo.takeGoodPeopleId"
+            clearable
+            filterable
+            placeholder="请选择拿货人"
+          >
+            <el-option
+              v-for="(item, index) in userOption"
               :key="index"
               :label="item.userName"
               :value="item.ID"

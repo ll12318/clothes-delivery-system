@@ -6,9 +6,10 @@ import (
 )
 
 type GoodBillSearch struct {
-	StartCreatedAt *time.Time `json:"startCreatedAt" form:"startCreatedAt"`
-	EndCreatedAt   *time.Time `json:"endCreatedAt" form:"endCreatedAt"`
-	CreatedBy      uint       `json:"createdBy" form:"createdBy"`
+	StartCreatedAt   *time.Time `json:"startCreatedAt" form:"startCreatedAt"`
+	EndCreatedAt     *time.Time `json:"endCreatedAt" form:"endCreatedAt"`
+	CreatedBy        uint       `json:"createdBy" form:"createdBy"`
+	TakeGoodPeopleId uint       `json:"takeGoodPeopleId" form:"takeGoodPeopleId"`
 
 	request.PageInfo
 }
