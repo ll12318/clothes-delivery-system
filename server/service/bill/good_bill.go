@@ -250,7 +250,8 @@ func (gbService *GoodBillService) GetGoodBillMarketListByDriver(userId uint, inf
 	if *finishStatus == false {
 		db.
 			Select("market_id").
-			Where("take_good_people_id = ? AND finish_status IS NULL", userId).
+			Where("take_good_people_id = ?", userId).
+			Where("finish_status IS NULL OR finish_status = ?", false).
 			Preload("Market")
 	}
 
@@ -297,7 +298,7 @@ func (gbService *GoodBillService) GetGoodBillListByMarketId(userId uint, info bi
 		return goodBills, total, err
 	}
 	if *finishStatus == false {
-		err = db.Where("finish_status IS NULL").
+		err = db.Where("finish_status IS NULL OR finish_status = ?", false).
 			Find(&goodBills).Error
 		return goodBills, total, err
 	}
