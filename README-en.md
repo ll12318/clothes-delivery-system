@@ -27,7 +27,7 @@ English | [简体中文](./README.md)
 
 ### 1.1 Project Introduction
 
-> Gin-vue-admin is a backstage management system based on [vue](https://vuejs.org) and [gin](https://gin-gonic.com), which separates the front and rear of the full stack. It integrates jwt authentication, dynamic routing, dynamic menu, casbin authentication, form generator, code generator and other functions. It provides a variety of sample files, allowing you to focus more time on business development.
+> Gin-vue-admin1 is a backstage management system based on [vue](https://vuejs.org) and [gin](https://gin-gonic.com), which separates the front and rear of the full stack. It integrates jwt authentication, dynamic routing, dynamic menu, casbin authentication, form generator, code generator and other functions. It provides a variety of sample files, allowing you to focus more time on business development.
 
 [Online Demo](http://demo.gin-vue-admin.com): http://demo.gin-vue-admin.com
 
