@@ -35,6 +35,7 @@ type GoodBill struct {
 	OrderMessage        string                       `json:"orderMessage" form:"orderMessage" gorm:"column:order_message;comment:下单人留言;type:longtext;"`   // 下单人留言
 	AdminMessage        string                       `json:"adminMessage" form:"adminMessage" gorm:"column:admin_message;comment:管理员留言;type:longtext;"`   // 管理员留言
 	DriverMessage       string                       `json:"driverMessage" form:"driverMessage" gorm:"column:driver_message;comment:司机留言;type:longtext;"` // 司机留言
+	DriverVerify        *bool                        `json:"driverVerify" form:"driverVerify" gorm:"column:driver_verify;comment:司机核实;"`
 }
 
 // TableName 货单 GoodBill自定义表名 good_bill

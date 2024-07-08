@@ -96,6 +96,19 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="司机核实" prop="driverVerify">
+          <el-select v-model="searchInfo.driverVerify" clearable filterable>
+            <el-option
+                v-for="item in [
+                { label: '是', value: true },
+                { label: '否', value: false },
+              ]"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button icon="search" type="primary" @click="onSubmit"
             >查询</el-button
@@ -263,6 +276,20 @@
               v-model="scope.row.finishStatus"
               :disabled="!btnAuth.takeGoodPeopleInp"
               @change="finishStatusChange(scope.row)"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+            align="left"
+            label="司机核实"
+            prop="driverVerify"
+            width="120"
+        >
+          <template #default="scope">
+            <el-switch
+                v-model="scope.row.driverVerify"
+                :disabled="!btnAuth.takeGoodPeopleInp"
+                @change="finishStatusChange(scope.row)"
             />
           </template>
         </el-table-column>
@@ -799,7 +826,7 @@ const finishStatusChange = async (val) => {
   await updateGoodBill(val);
   ElMessage({
     type: "success",
-    message: "完成状态修改成功",
+    message: "状态修改成功",
   });
   onSubmit();
 };

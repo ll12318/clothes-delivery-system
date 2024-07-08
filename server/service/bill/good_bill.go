@@ -140,6 +140,15 @@ func (gbService *GoodBillService) GetGoodBillInfoList(info billReq.GoodBillSearc
 		}
 	}
 
+	if info.DriverVerify != nil {
+		if *info.DriverVerify == false {
+			db = db.Where("driver_verify IS NULL OR driver_verify = ?", *info.DriverVerify)
+		}
+		if *info.DriverVerify == true {
+			db = db.Where("driver_verify = ?", *info.DriverVerify)
+		}
+	}
+
 	// 判断用户角色是不是超级管理员 管理员 888 用户998 司机999
 	for _, authority := range authorities {
 		authorityId := authority.AuthorityId
@@ -239,6 +248,7 @@ func (gbService *GoodBillService) GetGoodBillMarketListByDriver(userId uint, inf
 	var goodBills []bill.GoodBill
 
 	finishStatus := info.FinishStatus
+	driverVerify := info.DriverVerify
 	db := global.GVA_DB.Model(&bill.GoodBill{})
 	if *finishStatus == true {
 		db.
@@ -255,6 +265,20 @@ func (gbService *GoodBillService) GetGoodBillMarketListByDriver(userId uint, inf
 			Preload("Market")
 	}
 
+	if driverVerify != nil {
+		if *driverVerify == true {
+			db.
+				Select("market_id").
+				Where("take_good_people_id = ? AND driver_verify = ?", userId, true).
+				Preload("Market")
+		}
+		if *driverVerify == false {
+			db.
+				Select("market_id").
+				Where("take_good_people_id = ? AND driver_verify IS NULL OR driver_verify = ?", userId, false).
+				Preload("Market")
+		}
+	}
 	// 查询TakeGoodPeopleId为userId的数据并且查询出MarketId的数据
 	err = db.
 		Find(&goodBills).
@@ -283,6 +307,7 @@ func (gbService *GoodBillService) GetGoodBillMarketListByDriver(userId uint, inf
 func (gbService *GoodBillService) GetGoodBillListByMarketId(userId uint, info billReq.GoodBillMarketListSearch) (goodBills []bill.GoodBill, total int64, err error) {
 	marketId := info.MarketId
 	finishStatus := info.FinishStatus
+	driverVerify := info.DriverVerify
 	db := global.GVA_DB.Model(&bill.GoodBill{}).
 		Preload("CreatedByUserInfo", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "nick_name") // 选择需要的字段
@@ -298,13 +323,22 @@ func (gbService *GoodBillService) GetGoodBillListByMarketId(userId uint, info bi
 	if *finishStatus == true {
 		err = db.Where("finish_status = ?", true).
 			Find(&goodBills).Error
-		return goodBills, total, err
 	}
 	if *finishStatus == false {
 		err = db.Where("finish_status IS NULL OR finish_status = ?", false).
 			Find(&goodBills).Error
-		return goodBills, total, err
 	}
+	if driverVerify != nil {
+		if *driverVerify == true {
+			err = db.Where("driver_verify = ?", true).
+				Find(&goodBills).Error
+		}
+		if *driverVerify == false {
+			err = db.Where("driver_verify IS NULL OR driver_verify = ?", false).
+				Find(&goodBills).Error
+		}
+	}
+	db.Count(&total)
 
 	return goodBills, total, err
 }

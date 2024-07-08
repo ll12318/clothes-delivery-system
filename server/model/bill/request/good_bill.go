@@ -11,12 +11,13 @@ type GoodBillSearch struct {
 	CreatedBy        uint       `json:"createdBy" form:"createdBy"`
 	TakeGoodPeopleId uint       `json:"takeGoodPeopleId" form:"takeGoodPeopleId"`
 	FinishStatus     *bool      `json:"finishStatus" form:"finishStatus"`
-
+	DriverVerify     *bool      `json:"driverVerify" form:"driverVerify"`
 	request.PageInfo
 }
 
 // GoodBillMarketListSearch
 type GoodBillMarketListSearch struct {
 	FinishStatus *bool `json:"finishStatus" form:"finishStatus"`
+	DriverVerify *bool `json:"driverVerify" form:"driverVerify"`
 	MarketId     uint  `json:"marketId" form:"marketId"`
 }
