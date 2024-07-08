@@ -290,8 +290,11 @@ func (gbService *GoodBillService) GetGoodBillListByMarketId(userId uint, info bi
 		Preload("Stall.Market").
 		Preload("TakeGoodPeople").
 		Preload("GoodBillStatus").
-		Preload("FinishPeople").Preload("Market").
-		Where("market_id = ?  AND take_good_people_id = ?", marketId, userId)
+		Preload("FinishPeople").Preload("Market")
+	if marketId != 0 {
+		db = db.Where("market_id = ?", marketId)
+	}
+	db.Where("take_good_people_id = ?", userId)
 	if *finishStatus == true {
 		err = db.Where("finish_status = ?", true).
 			Find(&goodBills).Error

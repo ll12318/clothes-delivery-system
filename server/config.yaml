@@ -12,7 +12,7 @@ autocode:
     server-api: /api/v1/%s
     server-plug: /plugin/%s
     server-initialize: /initialize
-    root: E:\wk\go\goadminvue\clothes-delivery-system\gin-vue-admin
+    root: D:\web\go\gav\clothes-delivery-system
     web-table: /view
     web: /web/src
     server-service: /service/%s
@@ -85,7 +85,7 @@ hua-wei-obs:
     access-key: you-access-key
     secret-key: you-secret-key
 jwt:
-    signing-key: eb0d6584-41b2-4e91-ae9a-c47e4b7d63c8
+    signing-key: adda497e-72dc-4e11-9c96-80c1b7add8ab
     expires-time: 7d
     buffer-time: 1d
     issuer: qmPlus
@@ -125,12 +125,10 @@ mysql:
     prefix: ""
     port: "3306"
     config: charset=utf8mb4&parseTime=True&loc=Local
-    db-name: clothes-delivery-system
+    db-name: clothes-delivery-system-sit
     username: root
-    password: Liuli5201314
+    password: Liuli5201314.
     path: 127.0.0.1
-#    path: 114.55.36.11
-#    path: 100.120.119.60
     engine: ""
     log-mode: error
     max-idle-conns: 10
