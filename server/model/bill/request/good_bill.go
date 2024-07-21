@@ -13,6 +13,7 @@ type GoodBillSearch struct {
 	FinishStatus     *bool      `json:"finishStatus" form:"finishStatus"`
 	DriverVerify     *bool      `json:"driverVerify" form:"driverVerify"` //
 	Device           string     `json:"device" form:"device"`             // 0 小程序 1 网页端
+	BillNumber       string     `json:"billNumber" form:"billNumber"`     // 单据编号
 	request.PageInfo
 }
 

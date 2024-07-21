@@ -19,7 +19,7 @@ type GoodBillService struct {
 
 // CreateGoodBill 创建货单记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (gbService *GoodBillService) CreateGoodBill(gb *bill.GoodBill) (err error) {
+func (gbService *GoodBillService) CreateGoodBill(gb *bill.GoodBill, userUuid uuid.UUID) (err error) {
 	routeService := dataConfig.ServiceGroup{}
 	routeId := gb.Stall.RouteId
 	if routeId != 0 {
@@ -37,6 +37,12 @@ func (gbService *GoodBillService) CreateGoodBill(gb *bill.GoodBill) (err error) 
 		gb.Market = gb.Stall.Market
 	}
 
+	// 获取用户userNa
+	userService := system.UserService{}
+	userInfo, err := userService.GetUserInfo(userUuid)
+
+	// 生成单据编号
+	gb.BillNumber = "D" + time2.Now().Format("20060102150405") + "-" + userInfo.Username
 	err = global.GVA_DB.Create(gb).Error
 	return err
 }
@@ -152,6 +158,11 @@ func (gbService *GoodBillService) GetGoodBillInfoList(info billReq.GoodBillSearc
 	// 搜索下单设备 0 小程序 1 网页端
 	if info.Device != "" {
 		db = db.Where("device = ?", info.Device)
+	}
+
+	// 模糊查询单据编号
+	if info.BillNumber != "" {
+		db = db.Where("bill_number LIKE ?", "%"+info.BillNumber+"%")
 	}
 
 	// 判断用户角色是不是超级管理员 管理员 888 用户998 司机999

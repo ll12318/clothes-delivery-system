@@ -45,6 +45,13 @@
           />
         </el-form-item>
 
+        <el-form-item label="单据编号" prop="billNumber">
+          <el-input
+            v-model="searchInfo.billNumber"
+            placeholder="请输入单据编号"
+          />
+        </el-form-item>
+
         <el-form-item
           v-if="btnAuth.takeGoodPeopleInp"
           label="下单人"
@@ -168,7 +175,12 @@
           type="selection"
           width="55"
         />
-
+        <el-table-column
+          align="left"
+          label="单据编号"
+          prop="billNumber"
+          width="120"
+        />
         <el-table-column align="left" label="下单日期" width="180">
           <template #default="scope">
             {{ formatDate(scope.row.CreatedAt) }}

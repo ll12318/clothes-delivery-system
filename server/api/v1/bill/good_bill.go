@@ -28,13 +28,14 @@ var gbService = service.ServiceGroupApp.BillServiceGroup.GoodBillService
 func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 	var gb bill.GoodBill
 	err := c.ShouldBindJSON(&gb)
+	userUuid := utils.GetUserUuid(c)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	gb.CreatedBy = utils.GetUserID(c)
 
-	if err := gbService.CreateGoodBill(&gb); err != nil {
+	if err := gbService.CreateGoodBill(&gb, userUuid); err != nil {
 		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
 	} else {

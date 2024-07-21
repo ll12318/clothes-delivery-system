@@ -37,6 +37,7 @@ type GoodBill struct {
 	DriverMessage       string                       `json:"driverMessage" form:"driverMessage" gorm:"column:driver_message;comment:司机留言;type:longtext;"` // 司机留言
 	DriverVerify        *bool                        `json:"driverVerify" form:"driverVerify" gorm:"column:driver_verify;comment:司机核实;"`
 	Device              string                       `json:"device" form:"device" gorm:"column:device;comment:下单设备 0 小程序 1 网页端;default:'1';"` // 下单设备 0 小程序 1 网页端
+	BillNumber          string                       `json:"billNumber" form:"billNumber" gorm:"column:bill_number;comment:单据编号;"`
 }
 
 // TableName 货单 GoodBill自定义表名 good_bill
