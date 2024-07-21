@@ -715,7 +715,7 @@ const deleteRow = (row) => {
   console.log(row.CreatedAt, "row");
   // 计算下单时间有没有超过半小时
   const time = new Date().getTime() - new Date(row.CreatedAt).getTime();
-  if (time > 1000 * 60 * 30) {
+  if (time > 1000 * 60 * 30 && !btnAuth.takeGoodPeopleInp) {
     ElMessage({
       type: "warning",
       message: "下单时间超过半小时，不可删除，请联系管理员",
