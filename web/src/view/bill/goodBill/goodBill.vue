@@ -30,7 +30,7 @@
             "
             placeholder="开始日期"
             type="datetime"
-          ></el-date-picker>
+          />
           —
           <el-date-picker
             v-model="searchInfo.endCreatedAt"
@@ -42,7 +42,7 @@
             "
             placeholder="结束日期"
             type="datetime"
-          ></el-date-picker>
+          />
         </el-form-item>
 
         <el-form-item
@@ -93,27 +93,42 @@
               :key="item.value"
               :label="item.label"
               :value="item.value"
-            ></el-option>
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="司机核实" prop="driverVerify">
           <el-select v-model="searchInfo.driverVerify" clearable filterable>
             <el-option
-                v-for="item in [
+              v-for="item in [
                 { label: '是', value: true },
                 { label: '否', value: false },
               ]"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-            ></el-option>
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="下单设备" prop="device">
+          <el-select v-model="searchInfo.device" clearable filterable>
+            <el-option
+              v-for="item in [
+                { label: '小程序', value: '0' },
+                { label: '网页端', value: '1' },
+              ]"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button icon="search" type="primary" @click="onSubmit"
-            >查询</el-button
-          >
-          <el-button icon="refresh" @click="onReset">重置</el-button>
+          <el-button icon="search" type="primary" @click="onSubmit">
+            查询
+          </el-button>
+          <el-button icon="refresh" @click="onReset">
+            重置
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -123,17 +138,18 @@
         style="display: flex; justify-content: space-between"
       >
         <div>
-          <el-button icon="plus" type="primary" @click="openDialog"
-            >新增</el-button
-          >
+          <el-button icon="plus" type="primary" @click="openDialog">
+            新增
+          </el-button>
           <el-button
             v-if="btnAuth.takeGoodPeopleInp"
             :disabled="!multipleSelection.length"
             icon="delete"
             style="margin-left: 10px"
             @click="onDelete"
-            >删除</el-button
           >
+            删除
+          </el-button>
         </div>
         <div>
           <div>合计金额： {{ totalAmount }}</div>
@@ -154,9 +170,9 @@
         />
 
         <el-table-column align="left" label="下单日期" width="180">
-          <template #default="scope">{{
-            formatDate(scope.row.CreatedAt)
-          }}</template>
+          <template #default="scope">
+            {{ formatDate(scope.row.CreatedAt) }}
+          </template>
         </el-table-column>
 
         <el-table-column
@@ -165,7 +181,19 @@
           prop="createdBySimpleUser.nickName"
           width="120"
         />
-
+        // 下单设备
+        <el-table-column
+          align="left"
+          label="下单设备"
+          prop="device"
+          width="120"
+        >
+          <template #default="scope">
+            <div>
+              {{ scope.row.device == 0 ? "小程序" : "网页端" }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column
           align="left"
           label="档口名"
@@ -210,7 +238,13 @@
           prop="stall.market.marketName"
           width="120"
         />
-        <el-table-column align="left" label="加急" prop="urgent" width="120" />
+        <el-table-column align="left" label="加急" prop="urgent" width="120">
+          <template #default="scope">
+            <div>
+              {{ scope.row.urgent ? "是" : "否" }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column
           align="left"
           label="档口价格"
@@ -280,29 +314,25 @@
           </template>
         </el-table-column>
         <el-table-column
-            align="left"
-            label="司机核实"
-            prop="driverVerify"
-            width="120"
+          align="left"
+          label="司机核实"
+          prop="driverVerify"
+          width="120"
         >
           <template #default="scope">
             <el-switch
-                v-model="scope.row.driverVerify"
-                :disabled="!btnAuth.takeGoodPeopleInp"
-                @change="finishStatusChange(scope.row)"
+              v-model="scope.row.driverVerify"
+              :disabled="!btnAuth.takeGoodPeopleInp"
+              @change="finishStatusChange(scope.row)"
             />
           </template>
         </el-table-column>
-        <el-table-column
-          label="完成时间"
-          prop="finishTime"
-          width="180"
-        ></el-table-column>
+        <el-table-column label="完成时间" prop="finishTime" width="180" />
         <el-table-column
           label="完成人"
           prop="finishPeople.nickName"
           width="180"
-        ></el-table-column>
+        />
         <el-table-column
           align="left"
           fixed="right"
@@ -317,15 +347,17 @@
               link
               type="primary"
               @click="updateGoodBillFunc(scope.row)"
-              >变更</el-button
             >
+              变更
+            </el-button>
             <el-button
               icon="delete"
               link
               type="primary"
               @click="deleteRow(scope.row)"
-              >删除</el-button
             >
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -352,8 +384,12 @@
         <div class="flex items-center justify-between">
           <span class="text-lg">{{ type === "create" ? "添加" : "修改" }}</span>
           <div>
-            <el-button type="primary" @click="enterDialog">确 定</el-button>
-            <el-button @click="closeDialog">取 消</el-button>
+            <el-button type="primary" @click="enterDialog">
+              确 定
+            </el-button>
+            <el-button @click="closeDialog">
+              取 消
+            </el-button>
           </div>
         </div>
       </template>
@@ -382,7 +418,7 @@
               :key="stall.ID"
               :label="stall.stallNumber"
               :value="stall"
-            ></el-option>
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="拿货数量:" prop="takeGoodNum">

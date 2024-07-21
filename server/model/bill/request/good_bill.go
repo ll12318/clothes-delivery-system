@@ -11,7 +11,8 @@ type GoodBillSearch struct {
 	CreatedBy        uint       `json:"createdBy" form:"createdBy"`
 	TakeGoodPeopleId uint       `json:"takeGoodPeopleId" form:"takeGoodPeopleId"`
 	FinishStatus     *bool      `json:"finishStatus" form:"finishStatus"`
-	DriverVerify     *bool      `json:"driverVerify" form:"driverVerify"`
+	DriverVerify     *bool      `json:"driverVerify" form:"driverVerify"` //
+	Device           string     `json:"device" form:"device"`             // 0 小程序 1 网页端
 	request.PageInfo
 }
 

@@ -149,11 +149,18 @@ func (gbService *GoodBillService) GetGoodBillInfoList(info billReq.GoodBillSearc
 		}
 	}
 
+	// 搜索下单设备 0 小程序 1 网页端
+	if info.Device != "" {
+		db = db.Where("device = ?", info.Device)
+	}
+
 	// 判断用户角色是不是超级管理员 管理员 888 用户998 司机999
 	for _, authority := range authorities {
 		authorityId := authority.AuthorityId
 		// 判断用户角色是不是超级管理员 管理员 888 用户998 司机999
 		if authorityId == 888 {
+			isAdmin = true
+		} else if authorityId == 8881 {
 			isAdmin = true
 		} else if authorityId == 998 {
 			isUser = true
