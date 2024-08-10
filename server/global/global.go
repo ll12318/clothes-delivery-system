@@ -1,6 +1,7 @@
 package global
 
 import (
+	"github.com/flipped-aurora/gin-vue-admin/server/utils/wechat"
 	"github.com/qiniu/qmgo"
 	"sync"
 
@@ -32,6 +33,7 @@ var (
 
 	BlackCache local_cache.Cache
 	lock       sync.RWMutex
+	WeChatPay  wechat.WeChatPay
 )
 
 // GetGlobalDBByDBName 通过名称获取db list中的db

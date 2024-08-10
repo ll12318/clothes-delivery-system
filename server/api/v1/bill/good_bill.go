@@ -1,14 +1,17 @@
 package bill
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/bill"
 	billReq "github.com/flipped-aurora/gin-vue-admin/server/model/bill/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils/wechat"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"log"
 )
 
 type GoodBillApi struct {
@@ -39,7 +42,32 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
 	} else {
-		response.OkWithMessage("创建成功", c)
+
+		orderRequest := wechat.OrderRequest{
+			AppID:       global.WeChatPay.AppID,
+			MchID:       global.WeChatPay.MchID,
+			Description: "Test order",
+			OutTradeNo:  gb.BillNumber, // 使用唯一订单号生成函数
+			NotifyURL:   "https://your_notify_url",
+			Amount: wechat.Amount{
+				Total:    1,
+				Currency: "CNY",
+			},
+			Payer: wechat.Payer{
+				OpenID: "o1u8W7abV4UTsrgfuk6ewZ8gZa2c",
+			},
+		}
+
+		//发送创建订单请求
+		resp, err := global.WeChatPay.CreateOrder(orderRequest)
+		if err != nil {
+			log.Fatalf("Error creating order: %v", err)
+		}
+
+		//打印响应
+		fmt.Printf("resp: %v\n", resp)
+		//response.OkWithMessage("创建成功", c)
+		response.OkWithData(gin.H{"resp": resp}, c)
 	}
 }
 
