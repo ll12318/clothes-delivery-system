@@ -160,3 +160,53 @@ func (wc *WeChatPay) BuildSignature(PrepayID string) string {
 
 	return s
 }
+
+func (wc *WeChatPay) QueryOrder() error {
+	requestURL := fmt.Sprintf("https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/%s?mchid=%s", "D20240810234309-admin", "1680676110")
+	//requestURL := "https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi"
+
+	// 生成随机字符串和时间戳
+	nonceStr := "593BEC0C930BF1AFEB40B4A08C8FB142"
+	timestamp := time.Now().Unix()
+	canonicalUrl := fmt.Sprintf("/v3/pay/transactions/out-trade-no/%s?mchid=%s", "D20240810234309-admin", "1680676110")
+	// 构建待签名消息
+
+	message := fmt.Sprintf("%s\n%s\n%d\n%s\n\n", "GET", canonicalUrl, timestamp, nonceStr)
+
+	// 生成签名
+	signature, err := wc.generateSignature([]byte(message))
+	if err != nil {
+		return err
+	}
+
+	// 构建 Authorization 请求头
+	authorization := fmt.Sprintf(`WECHATPAY2-SHA256-RSA2048 mchid="%s",nonce_str="%s",timestamp="%d",serial_no="%s",signature="%s"`,
+		wc.MchID, nonceStr, timestamp, wc.CertificateSerialNo, signature)
+
+	// 创建 HTTP 客户端并发送请求
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", requestURL, nil)
+	if err != nil {
+		return err
+	}
+
+	// 设置请求头
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", "Mozilla/5.0")
+	req.Header.Set("Authorization", authorization)
+
+	// 发送请求并获取响应
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body) // 使用 io.ReadAll 替换 ioutil.ReadAll
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Response:", string(body))
+	return nil
+}
