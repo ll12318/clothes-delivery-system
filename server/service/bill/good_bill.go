@@ -80,6 +80,11 @@ func (gbService *GoodBillService) DeleteGoodBillByIds(IDs []string, deleted_by u
 // UpdateGoodBill 更新货单记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (gbService *GoodBillService) UpdateGoodBill(gb bill.GoodBill, userUuid uuid.UUID) (err error) {
+	if gb.FinishStatus == nil {
+		// 如果完成状态为空，设置完成状态为false
+		gb.FinishStatus = new(bool)
+		*gb.FinishStatus = false
+	}
 	b := *gb.FinishStatus == true
 	if b {
 		if gb.FinishTime == "" {

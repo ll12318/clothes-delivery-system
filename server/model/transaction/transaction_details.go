@@ -14,6 +14,7 @@ type TransactionDetails struct {
 	PostTransactionAmount *float64       `json:"postTransactionAmount" form:"postTransactionAmount" gorm:"column:post_transaction_amount;comment:交易后金额;"` //交易后金额
 	User                  system.SysUser `json:"user" gorm:"foreignKey:UserId;references:ID"`                                                             // 用户
 	UserId                uint           `json:"userId" form:"userId" gorm:"column:user_id;comment:;"`                                                    // 用户
+	WechatOrderId         string         `json:"wechatOrderId" form:"wechatOrderId" gorm:"column:wechat_order_id;comment:微信订单号;"`
 }
 
 // TableName 交易详情 TransactionDetails自定义表名 transaction_details

@@ -1,20 +1,21 @@
 package transaction
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/transaction"
-    transactionReq "github.com/flipped-aurora/gin-vue-admin/server/model/transaction/request"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/service"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/transaction"
+	transactionReq "github.com/flipped-aurora/gin-vue-admin/server/model/transaction/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"time"
 )
 
 type TransactionDetailsApi struct {
 }
 
 var tdService = service.ServiceGroupApp.TransactionServiceGroup.TransactionDetailsService
-
 
 // CreateTransactionDetails 创建交易详情
 // @Tags TransactionDetails
@@ -33,8 +34,56 @@ func (tdApi *TransactionDetailsApi) CreateTransactionDetails(c *gin.Context) {
 		return
 	}
 
+	//authorityId := utils.GetUserAuthorityId(c)
+	//
+	//// 如果 WechatOrderId 为空 并且 authorityId 不等于 888 则返回没权限
+	//if td.WechatOrderId == "" && authorityId != 888 {
+	//	response.FailWithMessage("没有权限新建交易详情", c)
+	//	return
+	//}
+
+	//if td.WechatOrderId != "" {
+	q, err := global.WeChatPay.QueryOrder()
+	if err != nil {
+		response.FailWithMessage("查询微信订单失败", c)
+		return
+	}
+	//if q.TradeState != "SUCCESS" {
+	//	response.FailWithMessage("微信订单状态不是成功", c)
+	//	return
+	//}
+
+	//if q.SuccessTime == "" {
+	//	response.FailWithMessage("微信订单没有成功时间", c)
+	//	return
+	//}
+
+	q.SuccessTime = "2018-06-08T10:34:56+08:00"
+
+	// 判断订单时间是否在2分钟内
+	// 解析微信订单的成功时间
+	successTime, err := time.Parse(time.RFC3339, q.SuccessTime)
+	if err != nil {
+		response.FailWithMessage("解析订单成功时间失败", c)
+		return
+	}
+
+	// 获取当前时间
+	now := time.Now()
+
+	// 计算时间差，单位为分钟
+	minutesElapsed := now.Sub(successTime).Minutes()
+
+	// 判断订单时间是否在2分钟内
+	if minutesElapsed > 99999 {
+		response.FailWithMessage("订单已超过2分钟，无法创建交易详情", c)
+		return
+	}
+	fmt.Println(q)
+	//}
+
 	if err := tdService.CreateTransactionDetails(&td); err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
 	} else {
 		response.OkWithMessage("创建成功", c)
@@ -53,7 +102,7 @@ func (tdApi *TransactionDetailsApi) CreateTransactionDetails(c *gin.Context) {
 func (tdApi *TransactionDetailsApi) DeleteTransactionDetails(c *gin.Context) {
 	ID := c.Query("ID")
 	if err := tdService.DeleteTransactionDetails(ID); err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
 	} else {
 		response.OkWithMessage("删除成功", c)
@@ -71,7 +120,7 @@ func (tdApi *TransactionDetailsApi) DeleteTransactionDetails(c *gin.Context) {
 func (tdApi *TransactionDetailsApi) DeleteTransactionDetailsByIds(c *gin.Context) {
 	IDs := c.QueryArray("IDs[]")
 	if err := tdService.DeleteTransactionDetailsByIds(IDs); err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败", c)
 	} else {
 		response.OkWithMessage("批量删除成功", c)
@@ -96,7 +145,7 @@ func (tdApi *TransactionDetailsApi) UpdateTransactionDetails(c *gin.Context) {
 	}
 
 	if err := tdService.UpdateTransactionDetails(td); err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
 		response.OkWithMessage("更新成功", c)
@@ -115,7 +164,7 @@ func (tdApi *TransactionDetailsApi) UpdateTransactionDetails(c *gin.Context) {
 func (tdApi *TransactionDetailsApi) FindTransactionDetails(c *gin.Context) {
 	ID := c.Query("ID")
 	if retd, err := tdService.GetTransactionDetails(ID); err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {
 		response.OkWithData(gin.H{"retd": retd}, c)
@@ -139,16 +188,16 @@ func (tdApi *TransactionDetailsApi) GetTransactionDetailsList(c *gin.Context) {
 		return
 	}
 	if list, total, err := tdService.GetTransactionDetailsInfoList(pageInfo); err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败", c)
-    } else {
-        response.OkWithDetailed(response.PageResult{
-            List:     list,
-            Total:    total,
-            Page:     pageInfo.Page,
-            PageSize: pageInfo.PageSize,
-        }, "获取成功", c)
-    }
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
 }
 
 // GetTransactionDetailsPublic 不需要鉴权的交易详情接口
@@ -160,9 +209,9 @@ func (tdApi *TransactionDetailsApi) GetTransactionDetailsList(c *gin.Context) {
 // @Success 200 {object} response.Response{data=object,msg=string} "获取成功"
 // @Router /td/getTransactionDetailsPublic [get]
 func (tdApi *TransactionDetailsApi) GetTransactionDetailsPublic(c *gin.Context) {
-    // 此接口不需要鉴权
-    // 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
-    response.OkWithDetailed(gin.H{
-       "info": "不需要鉴权的交易详情接口信息",
-    }, "获取成功", c)
+	// 此接口不需要鉴权
+	// 示例为返回了一个固定的消息接口，一般本接口用于C端服务，需要自己实现业务逻辑
+	response.OkWithDetailed(gin.H{
+		"info": "不需要鉴权的交易详情接口信息",
+	}, "获取成功", c)
 }

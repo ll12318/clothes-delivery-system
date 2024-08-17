@@ -161,7 +161,50 @@ func (wc *WeChatPay) BuildSignature(PrepayID string) string {
 	return s
 }
 
-func (wc *WeChatPay) QueryOrder() error {
+// 定义结构体以匹配JSON响应的结构
+type PromotionDetail struct {
+	CouponID            string `json:"coupon_id"`
+	Name                string `json:"name"`
+	Scope               string `json:"scope"`
+	Type                string `json:"type"`
+	Amount              int    `json:"amount"`
+	StockID             string `json:"stock_id"`
+	WechatpayContribute int    `json:"wechatpay_contribute"`
+	MerchantContribute  int    `json:"merchant_contribute"`
+	OtherContribute     int    `json:"other_contribute"`
+	Currency            string `json:"currency"`
+	GoodsDetail         []struct {
+		GoodsID        string `json:"goods_id"`
+		Quantity       int    `json:"quantity"`
+		UnitPrice      int    `json:"unit_price"`
+		DiscountAmount int    `json:"discount_amount"`
+		GoodsRemark    string `json:"goods_remark"`
+	} `json:"goods_detail"`
+}
+
+type SceneInfo struct {
+	DeviceID string `json:"device_id"`
+}
+
+type QueryOrderResponse struct {
+	Appid           string            `json:"appid"`
+	Mchid           string            `json:"mchid"`
+	OutTradeNo      string            `json:"out_trade_no"`
+	TransactionID   string            `json:"transaction_id"`
+	TradeType       string            `json:"trade_type"`
+	TradeState      string            `json:"trade_state"`
+	TradeStateDesc  string            `json:"trade_state_desc"`
+	BankType        string            `json:"bank_type"`
+	Attach          string            `json:"attach"`
+	SuccessTime     string            `json:"success_time"`
+	Payer           Payer             `json:"payer"`
+	Amount          Amount            `json:"amount"`
+	SceneInfo       SceneInfo         `json:"scene_info"`
+	PromotionDetail []PromotionDetail `json:"promotion_detail"`
+}
+
+func (wc *WeChatPay) QueryOrder() (q QueryOrderResponse, err error) {
+	var response QueryOrderResponse
 	requestURL := fmt.Sprintf("https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/%s?mchid=%s", "D20240810234309-admin", "1680676110")
 	//requestURL := "https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi"
 
@@ -169,6 +212,68 @@ func (wc *WeChatPay) QueryOrder() error {
 	nonceStr := "593BEC0C930BF1AFEB40B4A08C8FB142"
 	timestamp := time.Now().Unix()
 	canonicalUrl := fmt.Sprintf("/v3/pay/transactions/out-trade-no/%s?mchid=%s", "D20240810234309-admin", "1680676110")
+	// 构建待签名消息
+
+	message := fmt.Sprintf("%s\n%s\n%d\n%s\n\n", "GET", canonicalUrl, timestamp, nonceStr)
+
+	// 生成签名
+	signature, err := wc.generateSignature([]byte(message))
+	if err != nil {
+		return response, err
+
+	}
+
+	// 构建 Authorization 请求头
+	authorization := fmt.Sprintf(`WECHATPAY2-SHA256-RSA2048 mchid="%s",nonce_str="%s",timestamp="%d",serial_no="%s",signature="%s"`,
+		wc.MchID, nonceStr, timestamp, wc.CertificateSerialNo, signature)
+
+	// 创建 HTTP 客户端并发送请求
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", requestURL, nil)
+	if err != nil {
+		return response, err
+	}
+
+	// 设置请求头
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", "Mozilla/5.0")
+	req.Header.Set("Authorization", authorization)
+
+	// 发送请求并获取响应
+	resp, err := client.Do(req)
+	if err != nil {
+		return response, err
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body) // 使用 io.ReadAll 替换 ioutil.ReadAll
+	if err != nil {
+		return response, err
+	}
+	fmt.Printf("Response:", string(body))
+
+	// 创建一个QueryOrderResponse类型的变量来存储解码后的数据
+
+	// 使用 json.Unmarshal 解码JSON数据
+	err = json.Unmarshal([]byte(body), &response)
+	if err != nil {
+		panic(err)
+	}
+
+	// 打印解码后的数据，或进行其他操作
+	fmt.Printf("%+v\n", response)
+	return response, nil
+}
+
+func (wc *WeChatPay) QueryTransactionId() error {
+	requestURL := fmt.Sprintf("https://api.mch.weixin.qq.com/v3/pay/transactions/id/%s?mchid=%s", "wx17140451611106e3288ff35b83449c0000", "1680676110")
+	//requestURL := "https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi"
+
+	// 生成随机字符串和时间戳
+	nonceStr := "593BEC0C930BF1AFEB40B4A08C8FB142"
+	timestamp := time.Now().Unix()
+	canonicalUrl := fmt.Sprintf("/v3/pay/transactions/id/%s?mchid=%s", "wx17140451611106e3288ff35b83449c0000", "1680676110")
 	// 构建待签名消息
 
 	message := fmt.Sprintf("%s\n%s\n%d\n%s\n\n", "GET", canonicalUrl, timestamp, nonceStr)
