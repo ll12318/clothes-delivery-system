@@ -85,7 +85,7 @@ hua-wei-obs:
     access-key: you-access-key
     secret-key: you-secret-key
 jwt:
-    signing-key: adda497e-72dc-4e11-9c96-80c1b7add8ab
+    signing-key: 31fb8fa7-86f1-4b0e-8611-6d59054f0480
     expires-time: 7d
     buffer-time: 1d
     issuer: qmPlus

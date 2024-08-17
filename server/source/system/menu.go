@@ -95,6 +95,9 @@ func (i *initMenu) InitializeData(ctx context.Context) (next context.Context, er
 
 		// 货单状态
 		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "orderStatus", Name: "orderStatus", Component: "view/dataConfig/goodBillStatus/goodBillStatus.vue", Sort: 5, Meta: Meta{Title: "货单状态", Icon: "odometer", KeepAlive: false}},
+
+		// 交易详情
+		{MenuLevel: 0, Hidden: false, ParentId: 0, Path: "td", Name: "td", Component: "view/transaction/transactionDetails/transactionDetails.vue", Sort: 6, Meta: Meta{Title: "交易详情", Icon: "odometer", KeepAlive: false}},
 	}
 	if err = db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, SysBaseMenu{}.TableName()+"表数据初始化失败!")
