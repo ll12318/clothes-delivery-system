@@ -12,9 +12,8 @@
         <el-form-item label="角色" prop="authorityIds">
           <el-cascader
             v-model="searchInfo.authorityIds"
+            :clearable="false"
             :options="authOptions"
-            :show-all-levels="false"
-            collapse-tags
             :props="{
               multiple: true,
               checkStrictly: true,
@@ -23,29 +22,32 @@
               disabled: 'disabled',
               emitPath: false,
             }"
-            :clearable="false"
+            :show-all-levels="false"
+            collapse-tags
             @visible-change="(flag) => {}"
             @remove-tag="(removeAuth) => {}"
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="search" @click="onSubmit"
-            >查询</el-button
-          >
-          <el-button icon="refresh" @click="onReset">重置</el-button>
+          <el-button icon="search" type="primary" @click="onSubmit">
+            查询
+          </el-button>
+          <el-button icon="refresh" @click="onReset">
+            重置
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="gva-table-box">
       <div class="gva-btn-list">
-        <el-button type="primary" icon="plus" @click="addUser"
-          >新增用户</el-button
-        >
+        <el-button icon="plus" type="primary" @click="addUser">
+          新增用户
+        </el-button>
       </div>
       <el-table :data="tableData" row-key="ID">
         <el-table-column align="left" label="头像" min-width="75">
           <template #default="scope">
-            <CustomPic style="margin-top: 8px" :pic-src="scope.row.headerImg" />
+            <CustomPic :pic-src="scope.row.headerImg" style="margin-top: 8px" />
           </template>
         </el-table-column>
         <el-table-column align="left" label="ID" min-width="50" prop="ID" />
@@ -69,6 +71,13 @@
         />
         <el-table-column
           align="left"
+          balance
+          label="余额"
+          min-width="180"
+          prop="balance"
+        />
+        <el-table-column
+          align="left"
           label="邮箱"
           min-width="180"
           prop="email"
@@ -77,9 +86,8 @@
           <template #default="scope">
             <el-cascader
               v-model="scope.row.authorityIds"
+              :clearable="false"
               :options="authOptions"
-              :show-all-levels="false"
-              collapse-tags
               :props="{
                 multiple: true,
                 checkStrictly: true,
@@ -88,7 +96,8 @@
                 disabled: 'disabled',
                 emitPath: false,
               }"
-              :clearable="false"
+              :show-all-levels="false"
+              collapse-tags
               @visible-change="
                 (flag) => {
                   changeAuthority(scope.row, flag, 0);
@@ -106,9 +115,9 @@
           <template #default="scope">
             <el-switch
               v-model="scope.row.enable"
-              inline-prompt
               :active-value="1"
               :inactive-value="2"
+              inline-prompt
               @change="
                 () => {
                   switchEnable(scope.row);
@@ -118,29 +127,32 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" min-width="250" fixed="right">
+        <el-table-column fixed="right" label="操作" min-width="250">
           <template #default="scope">
             <el-button
-              type="primary"
-              link
               icon="delete"
+              link
+              type="primary"
               @click="deleteUserFunc(scope.row)"
-              >删除</el-button
             >
+              删除
+            </el-button>
             <el-button
-              type="primary"
-              link
               icon="edit"
-              @click="openEdit(scope.row)"
-              >编辑</el-button
-            >
-            <el-button
-              type="primary"
               link
-              icon="magic-stick"
-              @click="resetPasswordFunc(scope.row)"
-              >重置密码</el-button
+              type="primary"
+              @click="openEdit(scope.row)"
             >
+              编辑
+            </el-button>
+            <el-button
+              icon="magic-stick"
+              link
+              type="primary"
+              @click="resetPasswordFunc(scope.row)"
+            >
+              重置密码
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -158,27 +170,29 @@
     </div>
     <el-drawer
       v-model="addUserDialog"
-      size="60%"
-      :show-close="false"
-      :close-on-press-escape="false"
       :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :show-close="false"
+      size="60%"
     >
       <template #header>
         <div class="flex items-center justify-between">
           <span class="text-lg">用户</span>
           <div>
-            <el-button @click="closeAddUserDialog">取 消</el-button>
-            <el-button type="primary" @click="enterAddUserDialog"
-              >确 定</el-button
-            >
+            <el-button @click="closeAddUserDialog">
+              取 消
+            </el-button>
+            <el-button type="primary" @click="enterAddUserDialog">
+              确 定
+            </el-button>
           </div>
         </div>
       </template>
 
       <el-form
         ref="userForm"
-        :rules="rules"
         :model="userInfo"
+        :rules="rules"
         label-width="80px"
       >
         <el-form-item
@@ -203,9 +217,8 @@
         <el-form-item label="用户角色" prop="authorityId">
           <el-cascader
             v-model="userInfo.authorityIds"
-            style="width: 100%"
+            :clearable="false"
             :options="authOptions"
-            :show-all-levels="false"
             :props="{
               multiple: true,
               checkStrictly: true,
@@ -214,15 +227,16 @@
               disabled: 'disabled',
               emitPath: false,
             }"
-            :clearable="false"
+            :show-all-levels="false"
+            style="width: 100%"
           />
         </el-form-item>
         <el-form-item label="启用" prop="disabled">
           <el-switch
             v-model="userInfo.enable"
-            inline-prompt
             :active-value="1"
             :inactive-value="2"
+            inline-prompt
           />
         </el-form-item>
         <el-form-item label="头像" label-width="80px">
@@ -235,16 +249,16 @@
 
 <script setup>
 import {
-  getUserList,
-  setUserAuthorities,
-  register,
   deleteUser,
+  getUserList,
+  register,
+  setUserAuthorities,
 } from "@/api/user";
 
 import { getAuthorityList } from "@/api/authority";
 import CustomPic from "@/components/customPic/index.vue";
 import WarningBar from "@/components/warningBar/warningBar.vue";
-import { setUserInfo, resetPassword } from "@/api/user.js";
+import { resetPassword, setUserInfo } from "@/api/user.js";
 
 import { nextTick, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";

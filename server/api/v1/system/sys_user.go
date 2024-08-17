@@ -223,6 +223,7 @@ func (b *BaseApi) GetUserList(c *gin.Context) {
 		return
 	}
 	list, total, err := userService.GetUserInfoList(pageInfo)
+
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)

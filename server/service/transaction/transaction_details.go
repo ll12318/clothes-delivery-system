@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/transaction"
 	transactionReq "github.com/flipped-aurora/gin-vue-admin/server/model/transaction/request"
 	"strconv"
@@ -27,6 +28,11 @@ func (tdService *TransactionDetailsService) CreateTransactionDetails(td *transac
 		td.PreTransactionAmount = ltd.PostTransactionAmount
 	}
 	err = global.GVA_DB.Create(td).Error
+	if err != nil {
+		return err
+	}
+	// 给用户余额
+	err = global.GVA_DB.Model(&system.SysUser{}).Where("id = ?", userId).Update("balance", td.PostTransactionAmount).Error
 	return err
 }
 

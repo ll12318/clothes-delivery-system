@@ -20,6 +20,7 @@ type SysUser struct {
 	Phone       string         `json:"phone"  gorm:"comment:用户手机号"`                     // 用户手机号
 	Email       string         `json:"email"  gorm:"comment:用户邮箱"`                      // 用户邮箱
 	Enable      int            `json:"enable" gorm:"default:1;comment:用户是否被冻结 1正常 2冻结"` //用户是否被冻结 1正常 2冻结
+	Balance     *float64       `json:"balance" gorm:"default:0;comment:用户余额"`
 }
 
 func (SysUser) TableName() string {
