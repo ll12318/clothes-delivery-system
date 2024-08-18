@@ -15,7 +15,7 @@ type TransactionDetailsService struct {
 // Author [piexlmax](https://github.com/piexlmax)
 func (tdService *TransactionDetailsService) CreateTransactionDetails(td *transaction.TransactionDetails) (err error) {
 	transactionAmount := *td.TransactionAmount
-	userId := td.User.ID
+	userId := td.UserId
 	// 获取用户余额
 	ltd, err := tdService.GetTransactionDetailsByUserId(strconv.Itoa(int(userId)))
 	if err != nil {
@@ -61,6 +61,11 @@ func (tdService *TransactionDetailsService) UpdateTransactionDetails(td transact
 // Author [piexlmax](https://github.com/piexlmax)
 func (tdService *TransactionDetailsService) GetTransactionDetails(ID string) (td transaction.TransactionDetails, err error) {
 	err = global.GVA_DB.Preload("User").Where("id = ?", ID).First(&td).Error
+	return
+}
+
+func (tdService *TransactionDetailsService) GetTransactionDetailsByWechatOrderId(wechatOrderId string) (td transaction.TransactionDetails, err error) {
+	err = global.GVA_DB.Preload("User").Where("wechat_order_id = ?", wechatOrderId).First(&td).Error
 	return
 }
 

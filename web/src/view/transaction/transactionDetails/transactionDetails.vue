@@ -112,6 +112,13 @@
         />
         <el-table-column
           align="left"
+          label="微信订单号"
+          prop="wechatOrderId"
+          show-overflow-tooltip
+          width="320"
+        />
+        <el-table-column
+          align="left"
           fixed="right"
           label="操作"
           min-width="240"
@@ -231,6 +238,7 @@ const formData = ref({
   preTransactionAmount: 0,
   transactionAmount: 0,
   postTransactionAmount: 0,
+  user: {},
 });
 
 // 验证规则
@@ -432,7 +440,10 @@ const enterDialog = async () => {
     let res;
     switch (type.value) {
       case "create":
-        res = await createTransactionDetails(formData.value);
+        res = await createTransactionDetails({
+          ...formData.value,
+          userId: formData.value.user.userId,
+        });
         break;
       case "update":
         res = await updateTransactionDetails(formData.value);

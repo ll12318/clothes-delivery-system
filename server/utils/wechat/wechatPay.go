@@ -203,15 +203,15 @@ type QueryOrderResponse struct {
 	PromotionDetail []PromotionDetail `json:"promotion_detail"`
 }
 
-func (wc *WeChatPay) QueryOrder() (q QueryOrderResponse, err error) {
+func (wc *WeChatPay) QueryOrder(outTradeNo string) (q QueryOrderResponse, err error) {
 	var response QueryOrderResponse
-	requestURL := fmt.Sprintf("https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/%s?mchid=%s", "D20240810234309-admin", "1680676110")
+	requestURL := fmt.Sprintf("https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/%s?mchid=%s", outTradeNo, "1680676110")
 	//requestURL := "https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi"
 
 	// 生成随机字符串和时间戳
 	nonceStr := "593BEC0C930BF1AFEB40B4A08C8FB142"
 	timestamp := time.Now().Unix()
-	canonicalUrl := fmt.Sprintf("/v3/pay/transactions/out-trade-no/%s?mchid=%s", "D20240810234309-admin", "1680676110")
+	canonicalUrl := fmt.Sprintf("/v3/pay/transactions/out-trade-no/%s?mchid=%s", outTradeNo, "1680676110")
 	// 构建待签名消息
 
 	message := fmt.Sprintf("%s\n%s\n%d\n%s\n\n", "GET", canonicalUrl, timestamp, nonceStr)

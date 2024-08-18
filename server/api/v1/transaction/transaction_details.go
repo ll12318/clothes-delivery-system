@@ -1,7 +1,6 @@
 package transaction
 
 import (
-	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/transaction"
@@ -9,7 +8,6 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"time"
 )
 
 type TransactionDetailsApi struct {
@@ -27,60 +25,31 @@ var tdService = service.ServiceGroupApp.TransactionServiceGroup.TransactionDetai
 // @Success 200 {object} response.Response{msg=string} "创建成功"
 // @Router /td/createTransactionDetails [post]
 func (tdApi *TransactionDetailsApi) CreateTransactionDetails(c *gin.Context) {
-	var td transaction.TransactionDetails
-	err := c.ShouldBindJSON(&td)
-	if err != nil {
-		response.FailWithMessage(err.Error(), c)
+                                                               
+	// 查询微信订单号 查询交易详情 判断交易详情是否存在
+	transactionDetailByWechatOrderId, err := tdService.GetTransactionDetailsByWechatOrderId(td.WechatOrderId)
+	if err == nil && transactionDetailByWechatOrderId.ID != 0 {
+		response.FailWithMessage("微信订单号已经存在", c)
 		return
 	}
 
-	//authorityId := utils.GetUserAuthorityId(c)
-	//
-	//// 如果 WechatOrderId 为空 并且 authorityId 不等于 888 则返回没权限
-	//if td.WechatOrderId == "" && authorityId != 888 {
-	//	response.FailWithMessage("没有权限新建交易详情", c)
-	//	return
-	//}
-
 	//if td.WechatOrderId != "" {
-	q, err := global.WeChatPay.QueryOrder()
+	q, err := global.WeChatPay.QueryOrder(td.WechatOrderId)
 	if err != nil {
 		response.FailWithMessage("查询微信订单失败", c)
 		return
 	}
-	//if q.TradeState != "SUCCESS" {
-	//	response.FailWithMessage("微信订单状态不是成功", c)
-	//	return
-	//}
-
-	//if q.SuccessTime == "" {
-	//	response.FailWithMessage("微信订单没有成功时间", c)
-	//	return
-	//}
-
-	q.SuccessTime = "2018-06-08T10:34:56+08:00"
-
-	// 判断订单时间是否在2分钟内
-	// 解析微信订单的成功时间
-	successTime, err := time.Parse(time.RFC3339, q.SuccessTime)
-	if err != nil {
-		response.FailWithMessage("解析订单成功时间失败", c)
+	if q.TradeState != "SUCCESS" {
+		response.FailWithMessage("微信订单状态不是成功", c)
 		return
 	}
 
-	// 获取当前时间
-	now := time.Now()
-
-	// 计算时间差，单位为分钟
-	minutesElapsed := now.Sub(successTime).Minutes()
-
-	// 判断订单时间是否在2分钟内
-	if minutesElapsed > 99999 {
-		response.FailWithMessage("订单已超过2分钟，无法创建交易详情", c)
+	if q.SuccessTime == "" {
+		response.FailWithMessage("微信订单没有成功时间", c)
 		return
 	}
-	fmt.Println(q)
-	//}
+
+	// todo 判断金额是否一致
 
 	if err := tdService.CreateTransactionDetails(&td); err != nil {
 		global.GVA_LOG.Error("创建失败!", zap.Error(err))

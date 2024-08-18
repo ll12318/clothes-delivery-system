@@ -8,6 +8,8 @@ import (
 	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/dataConfig"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid/v5"
 	"gorm.io/gorm"
 	"strconv"
@@ -19,7 +21,7 @@ type GoodBillService struct {
 
 // CreateGoodBill 创建货单记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (gbService *GoodBillService) CreateGoodBill(gb *bill.GoodBill, userUuid uuid.UUID) (err error) {
+func (gbService *GoodBillService) CreateGoodBill(gb *bill.GoodBill, userUuid uuid.UUID, c *gin.Context, isPay bool) (err error) {
 	routeService := dataConfig.ServiceGroup{}
 	routeId := gb.Stall.RouteId
 	if routeId != 0 {
@@ -43,7 +45,14 @@ func (gbService *GoodBillService) CreateGoodBill(gb *bill.GoodBill, userUuid uui
 
 	// 生成单据编号
 	gb.BillNumber = "D" + time2.Now().Format("20060102150405") + "-" + userInfo.Username
-	err = global.GVA_DB.Create(gb).Error
+
+	db := global.GVA_DB
+
+	if utils.GetUserAuthorityId(c) != 888 && !isPay {
+		db = db.Omit("IsPay")
+	}
+
+	err = db.Create(gb).Error
 	return err
 }
 
@@ -79,13 +88,19 @@ func (gbService *GoodBillService) DeleteGoodBillByIds(IDs []string, deleted_by u
 
 // UpdateGoodBill 更新货单记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (gbService *GoodBillService) UpdateGoodBill(gb bill.GoodBill, userUuid uuid.UUID) (err error) {
+func (gbService *GoodBillService) UpdateGoodBill(gb bill.GoodBill, userUuid uuid.UUID, c *gin.Context) (err error) {
 	if gb.FinishStatus == nil {
 		// 如果完成状态为空，设置完成状态为false
 		gb.FinishStatus = new(bool)
 		*gb.FinishStatus = false
 	}
 	b := *gb.FinishStatus == true
+	userService := system.UserService{}
+	userInfo, err := userService.GetUserInfo(userUuid)
+	// 如果获取用户信息失败
+	if err != nil {
+		return err
+	}
 	if b {
 		if gb.FinishTime == "" {
 			// 如果完成状态为true，设置完成时间为当前时间
@@ -94,16 +109,17 @@ func (gbService *GoodBillService) UpdateGoodBill(gb bill.GoodBill, userUuid uuid
 		}
 		if gb.FinishPeopleId == 0 {
 			// 如果完成状态为true，设置完成人为当前调用者
-			userService := system.UserService{}
-			userInfo, err := userService.GetUserInfo(userUuid)
-			// 如果获取用户信息失败
-			if err != nil {
-				return err
-			}
 			gb.FinishPeopleId = userInfo.ID
 		}
 	}
-	err = global.GVA_DB.Model(&bill.GoodBill{}).Where("id = ?", gb.ID).Updates(&gb).Error
+	db := global.GVA_DB.Model(&bill.GoodBill{}).Where("id = ?", gb.ID)
+	if utils.GetUserAuthorityId(c) != 888 {
+		db = db.Omit("IsPay", "device", "wechat_order_id", "billNumber", "admin_message")
+	}
+
+	// 不允许修改PayType
+
+	err = db.Updates(&gb).Error
 	return err
 }
 
