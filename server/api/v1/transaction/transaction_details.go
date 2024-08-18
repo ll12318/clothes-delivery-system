@@ -47,27 +47,28 @@ func (tdApi *TransactionDetailsApi) CreateTransactionDetails(c *gin.Context) {
 		return
 	}
 
-	//if td.WechatOrderId != "" {
-	q, err := global.WeChatPay.QueryOrder(td.WechatOrderId)
-	if err != nil {
-		response.FailWithMessage("查询微信订单失败", c)
-		return
-	}
-	if q.TradeState != "SUCCESS" {
-		response.FailWithMessage("微信订单状态不是成功", c)
-		return
-	}
+	if td.WechatOrderId != "" {
+		q, err := global.WeChatPay.QueryOrder(td.WechatOrderId)
+		if err != nil {
+			response.FailWithMessage("查询微信订单失败", c)
+			return
+		}
+		if q.TradeState != "SUCCESS" {
+			response.FailWithMessage("微信订单状态不是成功", c)
+			return
+		}
 
-	if q.SuccessTime == "" {
-		response.FailWithMessage("微信订单没有成功时间", c)
-		return
-	}
+		if q.SuccessTime == "" {
+			response.FailWithMessage("微信订单没有成功时间", c)
+			return
+		}
 
-	//  判断金额是否一 致
-	TransactionAmount := *td.TransactionAmount * 100
-	if q.Amount.Total != TransactionAmount {
-		response.FailWithMessage("微信订单金额和交易金额不一致", c)
-		return
+		//  判断金额是否一 致
+		TransactionAmount := *td.TransactionAmount * 100
+		if q.Amount.Total != TransactionAmount {
+			response.FailWithMessage("微信订单金额和交易金额不一致", c)
+			return
+		}
 	}
 
 	if err := tdService.CreateTransactionDetails(&td); err != nil {

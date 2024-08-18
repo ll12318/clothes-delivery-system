@@ -1,6 +1,7 @@
 package bill
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/bill"
 	billReq "github.com/flipped-aurora/gin-vue-admin/server/model/bill/request"
@@ -11,6 +12,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"strconv"
 )
 
 type GoodBillApi struct {
@@ -63,8 +65,8 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 				response.FailWithMessage("微信订单没有成功时间", c)
 				return
 			}
-			StallPrice := gb.Stall.Price * 100
-			if q.Amount.Total != StallPrice {
+			stallPrice := gb.Stall.Price * 100
+			if q.Amount.Total != stallPrice {
 				response.FailWithMessage("微信订单金额和货单金额不一致", c)
 				return
 			}
@@ -101,7 +103,39 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 	}
 
 	// todo 余额支付
+	if gb.PayType == "余额支付" {
+		stallPrice := gb.Stall.Price
+		fmt.Println(stallPrice, "stallPrice")
+		tdService := transaction.TransactionDetailsService{}
+		ltd, err := tdService.GetTransactionDetailsByUserId(strconv.Itoa(int(gb.CreatedBy)))
+		if err != nil {
+			response.FailWithMessage("余额不足", c)
+			return
+		}
+		if *ltd.PostTransactionAmount < stallPrice {
+			response.FailWithMessage("余额不足", c)
+			return
+		}
+		TransactionAmount := float64(0)
+		PreTransactionAmount := float64(0)
+		PostTransactionAmount := float64(0)
+		TransactionAmount -= gb.Stall.Price
+		err = tdService.CreateTransactionDetails(&transactionModel.TransactionDetails{
+			TransactionAmount:     &TransactionAmount,
+			PreTransactionAmount:  &PreTransactionAmount,
+			PostTransactionAmount: &PostTransactionAmount,
+			UserId:                gb.CreatedBy,
+			WechatOrderId:         gb.WechatOrderId,
+		})
+		if err != nil {
+			response.FailWithMessage("创建微信交易详情失败", c)
+			return
+		}
+		isPay = true
+		gb.IsPay = "1"
 
+	}
+	fmt.Println("stallPrice")
 	if err := gbService.CreateGoodBill(&gb, userUuid, c, isPay); err != nil {
 		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
