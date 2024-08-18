@@ -63,7 +63,12 @@ func (tdApi *TransactionDetailsApi) CreateTransactionDetails(c *gin.Context) {
 		return
 	}
 
-	// todo 判断金额是否一致
+	//  判断金额是否一 致
+	TransactionAmount := *td.TransactionAmount * 100
+	if q.Amount.Total != TransactionAmount {
+		response.FailWithMessage("微信订单金额和交易金额不一致", c)
+		return
+	}
 
 	if err := tdService.CreateTransactionDetails(&td); err != nil {
 		global.GVA_LOG.Error("创建失败!", zap.Error(err))
