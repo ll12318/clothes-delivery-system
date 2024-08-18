@@ -6,6 +6,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/transaction"
 	transactionReq "github.com/flipped-aurora/gin-vue-admin/server/model/transaction/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -25,7 +26,20 @@ var tdService = service.ServiceGroupApp.TransactionServiceGroup.TransactionDetai
 // @Success 200 {object} response.Response{msg=string} "创建成功"
 // @Router /td/createTransactionDetails [post]
 func (tdApi *TransactionDetailsApi) CreateTransactionDetails(c *gin.Context) {
-                                                               
+	var td transaction.TransactionDetails
+	err := c.ShouldBindJSON(&td)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	authorityId := utils.GetUserAuthorityId(c)
+	//
+	// 如果 WechatOrderId 为空 并且 authorityId 不等于 888 则返回没权限
+	if td.WechatOrderId == "" && authorityId != 888 {
+		response.FailWithMessage("没有权限新建交易详情", c)
+		return
+	}
+
 	// 查询微信订单号 查询交易详情 判断交易详情是否存在
 	transactionDetailByWechatOrderId, err := tdService.GetTransactionDetailsByWechatOrderId(td.WechatOrderId)
 	if err == nil && transactionDetailByWechatOrderId.ID != 0 {
