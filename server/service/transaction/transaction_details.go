@@ -16,6 +16,9 @@ type TransactionDetailsService struct {
 func (tdService *TransactionDetailsService) CreateTransactionDetails(td *transaction.TransactionDetails) (err error) {
 	transactionAmount := *td.TransactionAmount
 	userId := td.UserId
+	if userId == 0 {
+		userId = td.User.ID
+	}
 	// 获取用户余额
 	ltd, err := tdService.GetTransactionDetailsByUserId(strconv.Itoa(int(userId)))
 	if err != nil {

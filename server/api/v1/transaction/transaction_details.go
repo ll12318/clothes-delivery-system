@@ -40,14 +40,13 @@ func (tdApi *TransactionDetailsApi) CreateTransactionDetails(c *gin.Context) {
 		return
 	}
 
-	// 查询微信订单号 查询交易详情 判断交易详情是否存在
-	transactionDetailByWechatOrderId, err := tdService.GetTransactionDetailsByWechatOrderId(td.WechatOrderId)
-	if err == nil && transactionDetailByWechatOrderId.ID != 0 {
-		response.FailWithMessage("微信订单号已经存在", c)
-		return
-	}
-
 	if td.WechatOrderId != "" {
+		// 查询微信订单号 查询交易详情 判断交易详情是否存在
+		transactionDetailByWechatOrderId, err := tdService.GetTransactionDetailsByWechatOrderId(td.WechatOrderId)
+		if err == nil && transactionDetailByWechatOrderId.ID != 0 {
+			response.FailWithMessage("微信订单号已经存在", c)
+			return
+		}
 		q, err := global.WeChatPay.QueryOrder(td.WechatOrderId)
 		if err != nil {
 			response.FailWithMessage("查询微信订单失败", c)
