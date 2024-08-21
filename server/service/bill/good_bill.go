@@ -42,13 +42,17 @@ func (gbService *GoodBillService) CreateGoodBill(gb *bill.GoodBill, userUuid uui
 	// 获取用户userNa
 	userService := system.UserService{}
 	userInfo, err := userService.GetUserInfo(userUuid)
+	if err != nil {
+		return err
+	}
+	authorityId := utils.GetUserAuthorityId(c)
 
 	// 生成单据编号
 	gb.BillNumber = "D" + time2.Now().Format("20060102150405") + "-" + userInfo.Username
 
 	db := global.GVA_DB
 
-	if utils.GetUserAuthorityId(c) != 888 && !isPay {
+	if authorityId != 888 && !isPay {
 		db = db.Omit("IsPay")
 	}
 
@@ -113,11 +117,10 @@ func (gbService *GoodBillService) UpdateGoodBill(gb bill.GoodBill, userUuid uuid
 		}
 	}
 	db := global.GVA_DB.Model(&bill.GoodBill{}).Where("id = ?", gb.ID)
-	if utils.GetUserAuthorityId(c) != 888 {
-		db = db.Omit("IsPay", "device", "wechat_order_id", "billNumber", "admin_message")
+	authorityId := utils.GetUserAuthorityId(c)
+	if authorityId != 888 {
+		db = db.Omit("IsPay", "IsManual", "PayType", "Device", "WechatOrderId", "BillNumber", "AdminMessage", "TakeGoodPeopleId", "AgreeRefund", "RefundStatus", "RefundOrderId")
 	}
-
-	// 不允许修改PayType
 
 	err = db.Updates(&gb).Error
 	return err

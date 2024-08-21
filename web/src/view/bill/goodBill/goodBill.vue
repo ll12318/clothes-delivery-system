@@ -133,9 +133,7 @@
           <el-button icon="search" type="primary" @click="onSubmit">
             查询
           </el-button>
-          <el-button icon="refresh" @click="onReset">
-            重置
-          </el-button>
+          <el-button icon="refresh" @click="onReset"> 重置 </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -345,6 +343,15 @@
           prop="finishPeople.nickName"
           width="180"
         />
+        <el-table-column label="支付方式" prop="payType" width="180" />
+
+        <el-table-column label="是否手动订单" prop="isManual" width="180" />
+        <el-table-column label="微信订单号" prop="wechatOrderId" width="180" />
+        <el-table-column label="是否支付完成" prop="isPay" width="180" />
+        <el-table-column label="售后状态" prop="afterSaleStatus" width="180" />
+        <el-table-column label="同意退款" prop="agreeRefund" width="180" />
+        <el-table-column label="退款完成" prop="refundStatus" width="180" />
+        <el-table-column label="退款订单号" prop="refundOrderId" width="180" />
         <el-table-column
           align="left"
           fixed="right"
@@ -353,7 +360,6 @@
         >
           <template #default="scope">
             <el-button
-              v-if="btnAuth.takeGoodPeopleInp"
               class="table-button"
               icon="edit"
               link
@@ -396,12 +402,8 @@
         <div class="flex items-center justify-between">
           <span class="text-lg">{{ type === "create" ? "添加" : "修改" }}</span>
           <div>
-            <el-button type="primary" @click="enterDialog">
-              确 定
-            </el-button>
-            <el-button @click="closeDialog">
-              取 消
-            </el-button>
+            <el-button type="primary" @click="enterDialog"> 确 定 </el-button>
+            <el-button @click="closeDialog"> 取 消 </el-button>
           </div>
         </div>
       </template>

@@ -47,6 +47,14 @@ type GoodBill struct {
 	IsManual string `json:"isManual" form:"isManual" gorm:"column:is_manual;comment:是否手动订单;default:'0';"`
 	// 是否支付完成 0 未完成 1 完成
 	IsPay string `json:"isPay" form:"isPay" gorm:"column:is_pay;comment:是否支付完成;default:'0';"`
+	// 售后状态 0 未售后 1 退款
+	AfterSaleStatus string `json:"afterSaleStatus" form:"afterSaleStatus" gorm:"column:after_sale_status;comment:售后状态;default:'0';"`
+	// 同意退款 0 不处理 1 同意 2 拒绝
+	AgreeRefund string `json:"agreeRefund" form:"agreeRefund" gorm:"column:agree_refund;comment:同意退款;default:'0';"`
+	// 退款完成 0 未完成 1 完成
+	RefundStatus string `json:"refundStatus" form:"refundStatus" gorm:"column:refund_status;comment:退款完成;default:'0';"`
+	// 退款订单号
+	RefundOrderId string `json:"refundOrderId" form:"refundOrderId" gorm:"column:refund_order_id;comment:退款订单号;"`
 }
 
 // TableName 货单 GoodBill自定义表名 good_bill
