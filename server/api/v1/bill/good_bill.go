@@ -8,11 +8,13 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	transactionModel "github.com/flipped-aurora/gin-vue-admin/server/model/transaction"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/transaction"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"strconv"
+	time2 "time"
 )
 
 type GoodBillApi struct {
@@ -39,6 +41,11 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 		return
 	}
 	gb.CreatedBy = utils.GetUserID(c)
+	// 获取用户userNa
+	userService := system.UserService{}
+	userInfo, err := userService.GetUserInfo(userUuid)
+	// 生成单据编号
+	gb.BillNumber = "D" + time2.Now().Format("20060102150405") + "-" + userInfo.Username
 	// 微信支付 判断
 	if gb.WechatOrderId != "" {
 		if gb.PayType == "微信支付" {
@@ -79,6 +86,7 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 				PostTransactionAmount: &PostTransactionAmount,
 				UserId:                gb.CreatedBy,
 				WechatOrderId:         gb.WechatOrderId,
+				Remark:                "货单微信支付+",
 			})
 			if err != nil {
 				response.FailWithMessage("创建微信交易详情失败", c)
@@ -92,6 +100,7 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 				PostTransactionAmount: &PostTransactionAmount,
 				UserId:                gb.CreatedBy,
 				WechatOrderId:         gb.WechatOrderId,
+				Remark:                "货单微信支付-",
 			})
 			if err != nil {
 				response.FailWithMessage("创建微信交易详情失败", c)
@@ -126,6 +135,8 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 			PostTransactionAmount: &PostTransactionAmount,
 			UserId:                gb.CreatedBy,
 			WechatOrderId:         gb.WechatOrderId,
+			BillNumber:            gb.BillNumber,
+			Remark:                "货单余额支付",
 		})
 		if err != nil {
 			response.FailWithMessage("创建微信交易详情失败", c)
@@ -135,7 +146,6 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 		gb.IsPay = "1"
 
 	}
-	fmt.Println("stallPrice")
 	if err := gbService.CreateGoodBill(&gb, userUuid, c, isPay); err != nil {
 		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
@@ -229,10 +239,51 @@ func (gbApi *GoodBillApi) UpdateGoodBill(c *gin.Context) {
 	}
 	gb.UpdatedBy = utils.GetUserID(c)
 	userUuid := utils.GetUserUuid(c)
+	authorityId := utils.GetUserAuthorityId(c)
+	goodBill, err := gbService.GetGoodBill(strconv.Itoa(int(gb.ID)))
+	if err != nil {
+		response.FailWithMessage("未查询到货单", c)
+	}
+	if goodBill.RefundStatus == "1" {
+		gb.RefundStatus = "1"
+	}
+	// 如果管理员同意退款
+	if gb.AgreeRefund == "1" && authorityId == 888 && goodBill.RefundStatus == "0" {
+		// 如果WechatOrderId有值 代表是微信支付
+		if gb.WechatOrderId != "" && gb.PayType == "微信支付" {
+		}
+		// 如果是余额支付
+		if gb.PayType == "余额支付" && gb.IsPay == "1" {
+			tdService := transaction.TransactionDetailsService{}
+			ltd, err := tdService.GetTransactionDetailsByBillNumber(gb.BillNumber)
+			if err != nil {
+				response.FailWithMessage("未查询到交易详情", c)
+			}
+			TransactionAmount := float64(0)
+			PreTransactionAmount := float64(0)
+			PostTransactionAmount := float64(0)
+			TransactionAmount -= *ltd.TransactionAmount
+			err = tdService.CreateTransactionDetails(&transactionModel.TransactionDetails{
+				TransactionAmount:     &TransactionAmount,
+				PreTransactionAmount:  &PreTransactionAmount,
+				PostTransactionAmount: &PostTransactionAmount,
+				UserId:                goodBill.CreatedBy,
+				WechatOrderId:         gb.WechatOrderId,
+				BillNumber:            gb.BillNumber,
+				Remark:                "货单余额退款-余额支付",
+			})
+			if err != nil {
+				response.FailWithMessage("创建微信交易详情失败", c)
+				return
+			}
+			gb.RefundStatus = "1"
+		}
+	}
 	if err := gbService.UpdateGoodBill(gb, userUuid, c); err != nil {
 		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
+
 		response.OkWithMessage("更新成功", c)
 	}
 }

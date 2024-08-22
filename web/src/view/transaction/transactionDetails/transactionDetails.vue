@@ -49,9 +49,7 @@
           <el-button icon="search" type="primary" @click="onSubmit">
             查询
           </el-button>
-          <el-button icon="refresh" @click="onReset">
-            重置
-          </el-button>
+          <el-button icon="refresh" @click="onReset"> 重置 </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -117,6 +115,21 @@
           show-overflow-tooltip
           width="320"
         />
+
+        <el-table-column
+          align="left"
+          label="货单号"
+          prop="billNumber"
+          show-overflow-tooltip
+          width="320"
+        />
+        <el-table-column
+          align="left"
+          label="备注"
+          prop="remark"
+          show-overflow-tooltip
+          width="320"
+        />
         <el-table-column
           align="left"
           fixed="right"
@@ -167,12 +180,8 @@
         <div class="flex justify-between items-center">
           <span class="text-lg">{{ type === "create" ? "添加" : "修改" }}</span>
           <div>
-            <el-button type="primary" @click="enterDialog">
-              确 定
-            </el-button>
-            <el-button @click="closeDialog">
-              取 消
-            </el-button>
+            <el-button type="primary" @click="enterDialog"> 确 定 </el-button>
+            <el-button @click="closeDialog"> 取 消 </el-button>
           </div>
         </div>
       </template>

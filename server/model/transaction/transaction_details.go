@@ -15,6 +15,11 @@ type TransactionDetails struct {
 	User                  system.SysUser `json:"user" gorm:"foreignKey:UserId;references:ID"`                                                             // 用户
 	UserId                uint           `json:"userId" form:"userId" gorm:"column:user_id;comment:;"`                                                    // 用户
 	WechatOrderId         string         `json:"wechatOrderId" form:"wechatOrderId" gorm:"column:wechat_order_id;comment:微信订单号;"`
+
+	// 订单号
+	BillNumber string `json:"billNumber" form:"billNumber" gorm:"column:bill_number;comment:订单号;"`
+	// 备注
+	Remark string `json:"remark" form:"remark" gorm:"column:remark;comment:备注;"`
 }
 
 // TableName 交易详情 TransactionDetails自定义表名 transaction_details

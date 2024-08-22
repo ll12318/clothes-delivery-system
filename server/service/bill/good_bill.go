@@ -39,16 +39,10 @@ func (gbService *GoodBillService) CreateGoodBill(gb *bill.GoodBill, userUuid uui
 		gb.Market = gb.Stall.Market
 	}
 
-	// 获取用户userNa
-	userService := system.UserService{}
-	userInfo, err := userService.GetUserInfo(userUuid)
 	if err != nil {
 		return err
 	}
 	authorityId := utils.GetUserAuthorityId(c)
-
-	// 生成单据编号
-	gb.BillNumber = "D" + time2.Now().Format("20060102150405") + "-" + userInfo.Username
 
 	db := global.GVA_DB
 

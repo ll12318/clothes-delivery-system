@@ -78,6 +78,11 @@ func (tdService *TransactionDetailsService) GetTransactionDetailsByUserId(userId
 	return
 }
 
+func (tdService *TransactionDetailsService) GetTransactionDetailsByBillNumber(billNumber string) (td transaction.TransactionDetails, err error) {
+	err = global.GVA_DB.Where("bill_number = ?", billNumber).Last(&td).Error
+	return
+}
+
 // GetTransactionDetailsInfoList 分页获取交易详情记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (tdService *TransactionDetailsService) GetTransactionDetailsInfoList(info transactionReq.TransactionDetailsSearch) (list []transaction.TransactionDetails, total int64, err error) {
