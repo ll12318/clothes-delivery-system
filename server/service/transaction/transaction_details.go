@@ -5,6 +5,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/transaction"
 	transactionReq "github.com/flipped-aurora/gin-vue-admin/server/model/transaction/request"
+	"github.com/shopspring/decimal"
 	"strconv"
 )
 
@@ -26,7 +27,8 @@ func (tdService *TransactionDetailsService) CreateTransactionDetails(td *transac
 		*td.PreTransactionAmount = 0.00
 	} else {
 		// 如果用户金额不为空 交易后金额 = 上次金额 + 交易金额
-		newAmount := *ltd.PostTransactionAmount + transactionAmount
+		//newAmount := *ltd.PostTransactionAmount + transactionAmount
+		newAmount, _ := decimal.NewFromFloat(*ltd.PostTransactionAmount).Add(decimal.NewFromFloat(transactionAmount)).Float64()
 		td.PostTransactionAmount = &newAmount
 		td.PreTransactionAmount = ltd.PostTransactionAmount
 	}

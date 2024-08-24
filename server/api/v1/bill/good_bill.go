@@ -12,6 +12,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/service/transaction"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 	"strconv"
 	time2 "time"
@@ -93,7 +94,9 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 				return
 			}
 
-			TransactionAmount -= gb.Stall.Price
+			//TransactionAmount -= gb.Stall.Price
+			TransactionAmount, _ = decimal.NewFromFloat(TransactionAmount).Sub(decimal.NewFromFloat(gb.Stall.Price)).Float64()
+
 			err = tdService.CreateTransactionDetails(&transactionModel.TransactionDetails{
 				TransactionAmount:     &TransactionAmount,
 				PreTransactionAmount:  &PreTransactionAmount,
@@ -128,7 +131,8 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 		TransactionAmount := float64(0)
 		PreTransactionAmount := float64(0)
 		PostTransactionAmount := float64(0)
-		TransactionAmount -= gb.Stall.Price
+		//TransactionAmount -= gb.Stall.Price
+		TransactionAmount, _ = decimal.NewFromFloat(TransactionAmount).Sub(decimal.NewFromFloat(gb.Stall.Price)).Float64()
 		err = tdService.CreateTransactionDetails(&transactionModel.TransactionDetails{
 			TransactionAmount:     &TransactionAmount,
 			PreTransactionAmount:  &PreTransactionAmount,
@@ -262,7 +266,8 @@ func (gbApi *GoodBillApi) UpdateGoodBill(c *gin.Context) {
 			TransactionAmount := float64(0)
 			PreTransactionAmount := float64(0)
 			PostTransactionAmount := float64(0)
-			TransactionAmount -= *ltd.TransactionAmount
+			//TransactionAmount -= *ltd.TransactionAmount
+			TransactionAmount, _ = decimal.NewFromFloat(TransactionAmount).Sub(decimal.NewFromFloat(*ltd.TransactionAmount)).Float64()
 			err = tdService.CreateTransactionDetails(&transactionModel.TransactionDetails{
 				TransactionAmount:     &TransactionAmount,
 				PreTransactionAmount:  &PreTransactionAmount,
