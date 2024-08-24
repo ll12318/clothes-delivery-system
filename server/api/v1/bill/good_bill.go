@@ -243,7 +243,6 @@ func (gbApi *GoodBillApi) UpdateGoodBill(c *gin.Context) {
 	}
 	gb.UpdatedBy = utils.GetUserID(c)
 	userUuid := utils.GetUserUuid(c)
-	authorityId := utils.GetUserAuthorityId(c)
 	goodBill, err := gbService.GetGoodBill(strconv.Itoa(int(gb.ID)))
 	if err != nil {
 		response.FailWithMessage("未查询到货单", c)
@@ -251,8 +250,18 @@ func (gbApi *GoodBillApi) UpdateGoodBill(c *gin.Context) {
 	if goodBill.RefundStatus == "1" {
 		gb.RefundStatus = "1"
 	}
+
+	// 获取创建时间
+	at := goodBill.CreatedAt
+	// 判断当前时间是否在15分钟以内
+	now := time2.Now()
+	if now.Sub(at) < 15*time2.Minute {
+		response.FailWithMessage("15分钟内不能退款", c)
+		return
+	}
+
 	// 如果管理员同意退款
-	if gb.AgreeRefund == "1" && authorityId == 888 && goodBill.RefundStatus == "0" {
+	if gb.AgreeRefund == "1" && goodBill.RefundStatus == "0" {
 		// 如果WechatOrderId有值 代表是微信支付
 		if gb.WechatOrderId != "" && gb.PayType == "微信支付" {
 		}
