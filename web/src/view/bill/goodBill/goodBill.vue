@@ -263,6 +263,18 @@
         />
         <el-table-column
           align="left"
+          label="折扣后金额"
+          prop="discountAmount"
+          width="120"
+        />
+        <el-table-column
+          align="left"
+          label="折扣率"
+          prop="discountRate"
+          width="120"
+        />
+        <el-table-column
+          align="left"
           label="拿货数量"
           prop="takeGoodNum"
           width="120"

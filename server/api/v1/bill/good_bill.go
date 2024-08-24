@@ -33,9 +33,22 @@ var gbService = service.ServiceGroupApp.BillServiceGroup.GoodBillService
 // @Success 200 {object} response.Response{msg=string} "创建成功"
 // @Router /gb/createGoodBill [post]
 func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
+
+	dictionaryService := system.DictionaryService{}
+	detail, err2 := dictionaryService.GetDictionaryInfoByTypeValue("档口拿货价格折扣")
+	if err2 != nil {
+		response.FailWithMessage("获取档口拿货价格折扣失败", c)
+		return
+	}
+
+	// 折扣率 detail.Value 转换为float64
+	discountRate, _ := strconv.ParseFloat(detail.Value, 64)
+
 	var gb bill.GoodBill
 	var isPay = false
 	err := c.ShouldBindJSON(&gb)
+	gb.DiscountAmount, _ = decimal.NewFromFloat(gb.Stall.Price).Mul(decimal.NewFromFloat(discountRate)).Float64()
+	gb.DiscountRate = discountRate
 	userUuid := utils.GetUserUuid(c)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -241,6 +254,18 @@ func (gbApi *GoodBillApi) UpdateGoodBill(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+
+	dictionaryService := system.DictionaryService{}
+	detail, err2 := dictionaryService.GetDictionaryInfoByTypeValue("档口拿货价格折扣")
+	if err2 != nil {
+		response.FailWithMessage("获取档口拿货价格折扣失败", c)
+		return
+	}
+
+	// 折扣率 detail.Value 转换为float64
+	discountRate, _ := strconv.ParseFloat(detail.Value, 64)
+	gb.DiscountAmount, _ = decimal.NewFromFloat(gb.Stall.Price).Mul(decimal.NewFromFloat(discountRate)).Float64()
+	gb.DiscountRate = discountRate
 	gb.UpdatedBy = utils.GetUserID(c)
 	userUuid := utils.GetUserUuid(c)
 	goodBill, err := gbService.GetGoodBill(strconv.Itoa(int(gb.ID)))
@@ -251,22 +276,23 @@ func (gbApi *GoodBillApi) UpdateGoodBill(c *gin.Context) {
 		gb.RefundStatus = "1"
 	}
 
-	// 获取创建时间
-	at := goodBill.CreatedAt
-	// 判断当前时间是否在15分钟以内
-	now := time2.Now()
-	if now.Sub(at) < 15*time2.Minute {
-		response.FailWithMessage("15分钟内不能退款", c)
-		return
-	}
-
 	// 如果管理员同意退款
 	if gb.AgreeRefund == "1" && goodBill.RefundStatus == "0" {
-		// 如果WechatOrderId有值 代表是微信支付
-		if gb.WechatOrderId != "" && gb.PayType == "微信支付" {
+		// 获取创建时间
+		at := goodBill.CreatedAt
+		// 判断当前时间是否在15分钟以内
+		now := time2.Now().Sub(at)
+		minute := 15 * time2.Minute
+		if now > minute {
+			response.FailWithMessage("15分钟内不能退款", c)
+			return
 		}
+		// 如果WechatOrderId有值 代表是微信支付
+		//if gb.WechatOrderId != "" && gb.PayType == "微信支付" {
+		//}
 		// 如果是余额支付
-		if gb.PayType == "余额支付" && gb.IsPay == "1" {
+		//if gb.PayType == "余额支付" && gb.IsPay == "1" {
+		if gb.IsPay == "1" {
 			tdService := transaction.TransactionDetailsService{}
 			ltd, err := tdService.GetTransactionDetailsByBillNumber(gb.BillNumber)
 			if err != nil {

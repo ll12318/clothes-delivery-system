@@ -55,6 +55,11 @@ type GoodBill struct {
 	RefundStatus string `json:"refundStatus" form:"refundStatus" gorm:"column:refund_status;comment:退款完成;default:'0';"`
 	// 退款订单号
 	RefundOrderId string `json:"refundOrderId" form:"refundOrderId" gorm:"column:refund_order_id;comment:退款订单号;"`
+
+	// 折扣后金额
+	DiscountAmount float64 `json:"discountAmount" form:"discountAmount" gorm:"column:discount_amount;comment:折扣后金额;"`
+	// 折扣率
+	DiscountRate float64 `json:"discountRate" form:"discountRate" gorm:"column:discount_rate;comment:折扣率;"`
 }
 
 // TableName 货单 GoodBill自定义表名 good_bill

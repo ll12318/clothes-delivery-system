@@ -2,7 +2,6 @@ package system
 
 import (
 	"errors"
-
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"gorm.io/gorm"
@@ -107,4 +106,13 @@ func (dictionaryService *DictionaryService) GetSysDictionaryInfoList() (list int
 	var sysDictionarys []system.SysDictionary
 	err = global.GVA_DB.Find(&sysDictionarys).Error
 	return sysDictionarys, err
+}
+
+// 根据名字获取字典值
+func (dictionaryService *DictionaryService) GetDictionaryInfoByTypeValue(n string) (detail system.SysDictionaryDetail, err error) {
+	dictionary := system.SysDictionary{}
+	err = global.GVA_DB.Where("name = ?", n).First(&dictionary).Error
+	sysDictionary, err := dictionaryService.GetSysDictionary(dictionary.Type, dictionary.ID, nil)
+	detail = sysDictionary.SysDictionaryDetails[0]
+	return
 }
