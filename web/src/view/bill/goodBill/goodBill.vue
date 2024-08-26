@@ -190,7 +190,7 @@
           align="left"
           label="单据编号"
           prop="billNumber"
-          width="120"
+          width="280"
         />
         <el-table-column align="left" label="下单日期" width="180">
           <template #default="scope">
