@@ -3,7 +3,7 @@ FROM node:16
 WORKDIR /gva_web/
 COPY . .
 
-RUN yarn && yarn build
+RUN #npm install -g cnpm && cnpm install && cnpm run build
 
 FROM nginx:alpine
 LABEL MAINTAINER="w17681264762@163.com"
