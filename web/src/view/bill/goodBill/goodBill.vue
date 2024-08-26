@@ -547,7 +547,7 @@
             placeholder="请输入司机留言"
           />
         </el-form-item>
-        <el-form-item label="备注:" prop="remarks">
+        <el-form-item label="收件地址:" prop="remarks">
           <el-input
             v-model="formData.remarks"
             :clearable="true"
