@@ -129,6 +129,19 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="是否手动订单" prop="isManual">
+          <el-select v-model="searchInfo.isManual" clearable filterable>
+            <el-option
+              v-for="item in [
+                { label: '自动', value: '0' },
+                { label: '手动', value: '1' },
+              ]"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button icon="search" type="primary" @click="onSubmit">
             查询

@@ -86,7 +86,7 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 				response.FailWithMessage("微信订单没有成功时间", c)
 				return
 			}
-			stallPrice := gb.Stall.Price * 100
+			stallPrice := gb.DiscountAmount * 100
 			if q.Amount.Total != stallPrice {
 				response.FailWithMessage("微信订单金额和货单金额不一致", c)
 				return
@@ -95,7 +95,7 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 			PreTransactionAmount := float64(0)
 			PostTransactionAmount := float64(0)
 			err = tdService.CreateTransactionDetails(&transactionModel.TransactionDetails{
-				TransactionAmount:     &gb.Stall.Price,
+				TransactionAmount:     &gb.DiscountAmount,
 				PreTransactionAmount:  &PreTransactionAmount,
 				PostTransactionAmount: &PostTransactionAmount,
 				UserId:                gb.CreatedBy,
@@ -108,7 +108,7 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 			}
 
 			//TransactionAmount -= gb.Stall.Price
-			TransactionAmount, _ = decimal.NewFromFloat(TransactionAmount).Sub(decimal.NewFromFloat(gb.Stall.Price)).Float64()
+			TransactionAmount, _ = decimal.NewFromFloat(TransactionAmount).Sub(decimal.NewFromFloat(gb.DiscountAmount)).Float64()
 
 			err = tdService.CreateTransactionDetails(&transactionModel.TransactionDetails{
 				TransactionAmount:     &TransactionAmount,
@@ -129,7 +129,7 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 
 	// todo 余额支付
 	if gb.PayType == "余额支付" {
-		stallPrice := gb.Stall.Price
+		stallPrice := gb.DiscountAmount
 		fmt.Println(stallPrice, "stallPrice")
 		tdService := transaction.TransactionDetailsService{}
 		ltd, err := tdService.GetTransactionDetailsByUserId(strconv.Itoa(int(gb.CreatedBy)))
@@ -145,7 +145,7 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 		PreTransactionAmount := float64(0)
 		PostTransactionAmount := float64(0)
 		//TransactionAmount -= gb.Stall.Price
-		TransactionAmount, _ = decimal.NewFromFloat(TransactionAmount).Sub(decimal.NewFromFloat(gb.Stall.Price)).Float64()
+		TransactionAmount, _ = decimal.NewFromFloat(TransactionAmount).Sub(decimal.NewFromFloat(gb.DiscountAmount)).Float64()
 		err = tdService.CreateTransactionDetails(&transactionModel.TransactionDetails{
 			TransactionAmount:     &TransactionAmount,
 			PreTransactionAmount:  &PreTransactionAmount,
