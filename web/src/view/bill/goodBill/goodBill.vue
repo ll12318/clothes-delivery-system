@@ -85,12 +85,12 @@
             <el-option
               v-for="(item, index) in userOption"
               :key="index"
-              :label="item.userName"
+              :label="item.nickName"
               :value="item.ID"
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="完成状态" prop="finishStatus">
+        <el-form-item label="拿货状态" prop="finishStatus">
           <el-select v-model="searchInfo.finishStatus" clearable filterable>
             <el-option
               v-for="item in [
@@ -103,7 +103,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="司机核实" prop="driverVerify">
+        <el-form-item label="是否到达集散点" prop="driverVerify">
           <el-select v-model="searchInfo.driverVerify" clearable filterable>
             <el-option
               v-for="item in [
@@ -247,7 +247,7 @@
                 <el-option
                   v-for="(item, index) in userOption"
                   :key="index"
-                  :label="item.userName"
+                  :label="item.nickName"
                   :value="item.ID"
                 />
               </el-select>
