@@ -63,7 +63,7 @@ func Routers() *gin.Engine {
 	{
 		systemRouter.InitApiRouter(PrivateGroup, PublicGroup)
 		systemRouter.InitJwtRouter(PrivateGroup)
-		systemRouter.InitUserRouter(PrivateGroup)
+		systemRouter.InitUserRouter(PrivateGroup, PublicGroup)
 		systemRouter.InitMenuRouter(PrivateGroup)
 		systemRouter.InitSystemRouter(PrivateGroup)
 		systemRouter.InitCasbinRouter(PrivateGroup)

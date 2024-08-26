@@ -170,6 +170,34 @@ func (b *BaseApi) Register(c *gin.Context) {
 	response.OkWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册成功", c)
 }
 
+// 用户注册 UserRegister
+func (b *BaseApi) UserRegister(c *gin.Context) {
+	var r systemReq.Register
+	err := c.ShouldBindJSON(&r)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	err = utils.Verify(r, utils.RegisterVerify)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	r.AuthorityId = 998
+	authorities := []system.SysAuthority{
+		{AuthorityId: r.AuthorityId},
+	}
+
+	user := &system.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities, Enable: r.Enable, Phone: r.Phone, Email: r.Email}
+	userReturn, err := userService.Register(*user)
+	if err != nil {
+		global.GVA_LOG.Error("注册失败!", zap.Error(err))
+		response.FailWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册失败", c)
+		return
+	}
+	response.OkWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册成功", c)
+}
+
 // ChangePassword
 // @Tags      SysUser
 // @Summary   用户修改密码
