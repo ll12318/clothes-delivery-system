@@ -8,9 +8,10 @@ import (
 
 type UserRouter struct{}
 
-func (s *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
+func (s *UserRouter) InitUserRouter(Router *gin.RouterGroup, RouterPub *gin.RouterGroup) {
 	userRouter := Router.Group("user").Use(middleware.OperationRecord())
 	userRouterWithoutRecord := Router.Group("user")
+	userRouterWithPub := RouterPub.Group("user").Use(middleware.OperationRecord())
 	baseApi := v1.ApiGroupApp.SystemApiGroup.BaseApi
 	{
 		userRouter.POST("admin_register", baseApi.Register)               // 管理员注册账号
@@ -25,5 +26,8 @@ func (s *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 	{
 		userRouterWithoutRecord.POST("getUserList", baseApi.GetUserList) // 分页获取用户列表
 		userRouterWithoutRecord.GET("getUserInfo", baseApi.GetUserInfo)  // 获取自身信息
+	}
+	{
+		userRouterWithPub.POST("register", baseApi.UserRegister) // 管理员注册账号
 	}
 }
