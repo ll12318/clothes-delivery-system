@@ -85,12 +85,12 @@
             <el-option
               v-for="(item, index) in userOption"
               :key="index"
-              :label="item.userName"
+              :label="item.nickName"
               :value="item.ID"
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="完成状态" prop="finishStatus">
+        <el-form-item label="拿货状态" prop="finishStatus">
           <el-select v-model="searchInfo.finishStatus" clearable filterable>
             <el-option
               v-for="item in [
@@ -103,7 +103,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="司机核实" prop="driverVerify">
+        <el-form-item label="是否到达集散点" prop="driverVerify">
           <el-select v-model="searchInfo.driverVerify" clearable filterable>
             <el-option
               v-for="item in [
@@ -190,7 +190,7 @@
           align="left"
           label="单据编号"
           prop="billNumber"
-          width="120"
+          width="280"
         />
         <el-table-column align="left" label="下单日期" width="180">
           <template #default="scope">
@@ -247,7 +247,7 @@
                 <el-option
                   v-for="(item, index) in userOption"
                   :key="index"
-                  :label="item.userName"
+                  :label="item.nickName"
                   :value="item.ID"
                 />
               </el-select>
@@ -547,7 +547,7 @@
             placeholder="请输入司机留言"
           />
         </el-form-item>
-        <el-form-item label="备注:" prop="remarks">
+        <el-form-item label="收件地址:" prop="remarks">
           <el-input
             v-model="formData.remarks"
             :clearable="true"
