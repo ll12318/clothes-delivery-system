@@ -127,7 +127,7 @@ mysql:
     config: charset=utf8mb4&parseTime=True&loc=Local
     db-name: clothes-delivery-system-sit
     username: root
-    password: Liuli5201314.
+    password: 13649723339cjz
     path: 127.0.0.1
     engine: ""
     log-mode: error

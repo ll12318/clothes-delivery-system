@@ -129,12 +129,12 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="是否手动订单" prop="isManual">
+        <el-form-item label="审核订单" prop="isManual">
           <el-select v-model="searchInfo.isManual" clearable filterable>
             <el-option
               v-for="item in [
-                { label: '自动', value: '0' },
-                { label: '手动', value: '1' },
+                { label: '非审核单', value: '0' },
+                { label: '审核单', value: '1' },
               ]"
               :key="item.value"
               :label="item.label"
@@ -268,24 +268,24 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           align="left"
           label="档口价格"
           prop="stall.price"
           width="120"
-        />
+        /> -->
         <el-table-column
           align="left"
           label="折扣后金额"
           prop="discountAmount"
           width="120"
         />
-        <el-table-column
+        <!-- <el-table-column
           align="left"
           label="折扣率"
           prop="discountRate"
           width="120"
-        />
+        /> -->
         <el-table-column
           align="left"
           label="拿货数量"
@@ -369,14 +369,64 @@
           width="180"
         />
         <el-table-column label="支付方式" prop="payType" width="180" />
-
-        <el-table-column label="是否手动订单" prop="isManual" width="180" />
-        <el-table-column label="微信订单号" prop="wechatOrderId" width="180" />
-        <el-table-column label="是否支付完成" prop="isPay" width="180" />
-        <el-table-column label="售后状态" prop="afterSaleStatus" width="180" />
-        <el-table-column label="同意退款" prop="agreeRefund" width="180" />
-        <el-table-column label="退款完成" prop="refundStatus" width="180" />
-        <el-table-column label="退款订单号" prop="refundOrderId" width="180" />
+        <el-table-column label="是否需要审核" prop="isManual" width="180">
+          <template #default="scope">
+            <div>
+              {{ scope.row.isManual==='0' ?  "需要" : "不需要" }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="微信订单号" prop="wechatOrderId" width="280">
+          <template #default="scope">
+            <div >
+              {{ scope.row.wechatOrderId === "" ? "无" : scope.row.wechatOrderId }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="是否支付完成" prop="isPay" width="180">
+          <template #default="scope">
+            <div>
+              {{ scope.row.isPay==='1'? "已支付" : "未支付" }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="售后状态" prop="afterSaleStatus" width="180">
+          <template #default="scope">
+            <div>
+              {{ scope.row.afterSaleStatus === '0' ? "无售后": '退款中'}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="同意退款" prop="agreeRefund" width="180">
+          <template #default="scope">
+            <div v-if="scope.row.afterSaleStatus=== '0' ">
+              {{ "无售后" }}
+            </div>
+            <div v-if="scope.row.afterSaleStatus=== '1'">
+              {{ scope.row.agreeRefund === "0" ? "未处理" : (scope.row.agreeRefund === 1 ? "同意" : "拒绝") }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="退款完成" prop="refundStatus" width="180">
+          <template #default="scope">
+            <div v-if="scope.row.afterSaleStatus=== '0' ">
+              {{ "无售后" }}
+            </div>
+            <div v-if="scope.row.afterSaleStatus=== '1'">
+              {{ scope.row.refundStatus === '0'? '未完成':'已完成' }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="退款订单号" prop="refundOrderId" width="180">
+          <template #default="scope">
+            <div v-if="scope.row.afterSaleStatus=== '0' ">
+              {{ "无售后" }}
+            </div>
+            <div v-if="scope.row.afterSaleStatus=== '1'">
+              {{ scope.row.refundOrderId === ''? '未完成' : scope.row.refundOrderId }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column
           align="left"
           fixed="right"
@@ -869,6 +919,7 @@ const enterDialog = async () => {
         res = await updateGoodBill({
           ...formData.value,
           stallId: formData.value.stall.ID,
+          isManual:'0'
         });
         break;
       default:

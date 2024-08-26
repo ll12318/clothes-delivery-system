@@ -64,28 +64,16 @@
                     <el-icon>
                       <data-analysis />
                     </el-icon>
-                    北京反转极光科技有限公司-技术部-前端事业群
+                    滴滴拿货
                   </li>
                 </el-tooltip>
                 <li class="info-list">
                   <el-icon>
                     <video-camera />
                   </el-icon>
-                  中国·北京市·朝阳区
+                  中国·福建省·石狮市
                 </li>
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  content="GoLang/JavaScript/Vue/Gorm"
-                  placement="top"
-                >
-                  <li class="info-list">
-                    <el-icon>
-                      <medal />
-                    </el-icon>
-                    GoLang/JavaScript/Vue/Gorm
-                  </li>
-                </el-tooltip>
+                
               </ul>
             </div>
           </div>
@@ -122,16 +110,6 @@
                       class="float-right text-blue-400"
                       @click="changeEmailFlag = true"
                     >立即修改</a>
-                  </p>
-                </li>
-                <li class="borderd pt-2.5">
-                  <p class="pb-2.5 text-xl text-gray-600">密保问题</p>
-                  <p class="pb-2.5 text-lg text-gray-400">
-                    未设置密保问题
-                    <a
-                      href="javascript:void(0)"
-                      class="float-right text-blue-400"
-                    >去设置</a>
                   </p>
                 </li>
                 <li class="borderd pt-2.5">
@@ -226,25 +204,6 @@
             autocomplete="off"
           />
         </el-form-item>
-        <el-form-item
-          label="验证码"
-          label-width="120px"
-        >
-          <div class="flex w-full gap-4">
-            <el-input
-              v-model="phoneForm.code"
-              class="flex-1"
-              autocomplete="off"
-              placeholder="请自行设计短信服务，此处为模拟随便写"
-              style="width:300px"
-            />
-            <el-button
-              type="primary"
-              :disabled="time>0"
-              @click="getCode"
-            >{{ time>0?`(${time}s)后重新获取`:'获取验证码' }}</el-button>
-          </div>
-        </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -276,25 +235,6 @@
             placeholder="请输入邮箱"
             autocomplete="off"
           />
-        </el-form-item>
-        <el-form-item
-          label="验证码"
-          label-width="120px"
-        >
-          <div class="flex w-full gap-4">
-            <el-input
-              v-model="emailForm.code"
-              class="flex-1"
-              placeholder="请自行设计邮件服务，此处为模拟随便写"
-              autocomplete="off"
-              style="width:300px"
-            />
-            <el-button
-              type="primary"
-              :disabled="emailTime>0"
-              @click="getEmailCode"
-            >{{ emailTime>0?`(${emailTime}s)后重新获取`:'获取验证码' }}</el-button>
-          </div>
         </el-form-item>
       </el-form>
       <template #footer>
