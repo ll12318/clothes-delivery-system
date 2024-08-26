@@ -372,7 +372,7 @@
         <el-table-column label="是否需要审核" prop="isManual" width="180">
           <template #default="scope">
             <div>
-              {{ scope.row.isManual==='0' ?  "需要" : "不需要" }}
+              {{ scope.row.isManual=='0' ?  "不需要" : "需要" }}
             </div>
           </template>
         </el-table-column>
@@ -499,13 +499,14 @@
         >
           <el-select
             v-model="formData.stall"
+            filterable
             :placeholder="formData.urgent ? '请选择加急档口' : '请选择档口'"
             value-key="ID"
           >
             <el-option
               v-for="stall in stallOptions"
               :key="stall.ID"
-              :label="stall.stallNumber"
+              :label="stall.stall"
               :value="stall"
             />
           </el-select>

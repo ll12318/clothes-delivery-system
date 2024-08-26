@@ -60,7 +60,7 @@
             <el-option
               v-for="(item, index) in userOption"
               :key="index"
-              :label="item.userName"
+              :label="item.nickName"
               :value="item.ID"
             />
           </el-select>
@@ -137,10 +137,16 @@
         <el-table-column
           align="left"
           label="司机"
-          prop="user.userName"
+          prop="user.nickName"
           width="120"
         />
-        <el-table-column align="left" label="加急" prop="urgent" width="120" />
+        <el-table-column align="left" label="加急" prop="urgent" width="120">
+          <template  #default="scope">
+            <div>
+              {{ scope.row.urgent? '加急':'非加急' }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column align="left" label="备注" prop="remarks" width="120" />
         <el-table-column
           align="left"
@@ -244,7 +250,7 @@
             <el-option
               v-for="(item, index) in userOption"
               :key="index"
-              :label="item.userName"
+              :label="item.nickName"
               :value="item"
             />
           </el-select>
@@ -547,6 +553,9 @@ const enterDialog = async () => {
     let res;
     switch (type.value) {
       case "create":
+        if (formData.value.urgent== undefined) {
+          formData.value.urgent = false
+        }
         res = await createRoute(formData.value);
         break;
       case "update":

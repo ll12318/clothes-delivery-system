@@ -126,7 +126,13 @@
           prop="urgent"
           sortable
           width="120"
-        />
+        >
+          <template #default="scope">
+            <div>
+              {{ scope.row.urgent? '加急': '非加急' }}
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column
           align="left"
           label="市场"
@@ -542,11 +548,15 @@ const closeDialog = () => {
 };
 // 弹窗确定
 const enterDialog = async () => {
+
   elFormRef.value?.validate(async (valid) => {
     if (!valid) return;
     let res;
     switch (type.value) {
       case "create":
+        if (formData.value.urgent == undefined) {
+          formData.value.urgent = false
+        }
         res = await createStall(formData.value);
         break;
       case "update":
