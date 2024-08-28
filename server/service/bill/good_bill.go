@@ -112,6 +112,32 @@ func (gbService *GoodBillService) UpdateGoodBill(gb bill.GoodBill, userUuid uuid
 	}
 	db := global.GVA_DB.Model(&bill.GoodBill{}).Where("id = ?", gb.ID)
 	authorityId := utils.GetUserAuthorityId(c)
+
+	// 获取更新前的货单信息
+	goodBill, err := gbService.GetGoodBill(strconv.Itoa(int(gb.ID)))
+	if err != nil {
+		return err
+	}
+	// 判断档口是否变化
+	if gb.StallId != goodBill.StallId {
+		routeService := dataConfig.ServiceGroup{}
+		routeId := gb.Stall.RouteId
+		if routeId != 0 {
+			route, err := routeService.GetRoute(strconv.Itoa(int(routeId)))
+			if err != nil {
+				return err
+			}
+			if route.User.ID != 0 {
+				gb.TakeGoodPeopleId = route.User.ID
+			}
+		}
+		marketId := gb.Stall.MarketId
+		if marketId != 0 {
+			gb.MarketId = marketId
+			gb.Market = gb.Stall.Market
+		}
+	}
+
 	if authorityId != 888 {
 		db = db.Omit("IsPay", "IsManual", "PayType", "Device", "WechatOrderId", "BillNumber", "AdminMessage", "TakeGoodPeopleId", "AgreeRefund", "RefundStatus", "RefundOrderId")
 	}
