@@ -170,7 +170,15 @@
           </el-button>
         </div>
         <div>
-          <div>合计金额： {{ totalAmount }}</div>
+          <div>
+            <el-button>
+              批量下单
+              <input type="file" accept=".xls,.xlsx" @change="readExcel"/>
+            </el-button>
+          </div>
+        </div>
+        <div>
+          <div>{{amountTitle +":" +totalAmount }}</div>
         </div>
       </div>
       <el-table
@@ -292,7 +300,7 @@
           prop="takeGoodNum"
           width="120"
         />
-        <el-table-column align="left" label="备注" prop="remarks" width="120" />
+        <el-table-column align="left" label="备注" prop="remarks" width="120"  :show-overflow-tooltip='true'/>
         <el-table-column
           align="left"
           label="下单人留言"
@@ -613,15 +621,18 @@ import { getGoodBillStatusList } from "@/api/dataConfig/goodBillStatus";
 import { formatDate } from "@/utils/format";
 
 import { ElMessage, ElMessageBox } from "element-plus";
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { getStallList } from "@/api/dataConfig/stall";
 import { getUserList } from "@/api/user";
 
 import { useBtnAuth } from "@/utils/btnAuth";
 import UploadImage from "@/components/upload/image.vue";
 
+import * as XLSX from 'xlsx'
+import { getMarketList } from "@/api/dataConfig/market";
+import { screen } from "@/utils/screen";
+
 const btnAuth = useBtnAuth();
-console.log("🚀 ~ btnAuth:", btnAuth.takeGoodPeopleInp);
 
 defineOptions({
   name: "GoodBill",
@@ -682,9 +693,55 @@ const total = ref(0);
 const pageSize = ref(10);
 const tableData = ref([]);
 const searchInfo = ref({});
+const amountTitle=ref('合计金额')
 
 const stallOptions = ref([]);
 
+// ------批量下单部分
+// 批量下单之读取Excel
+const readExcel = (event) => {
+  const fileInput = event.target;
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+
+    // 获取文件的扩展名
+    const fileName = file.name;
+    const fileExtension = fileName.split('.').pop().toLowerCase();
+
+    // 检查文件扩展名是否为 .xls 或 .xlsx
+    if (fileExtension === 'xls' || fileExtension === 'xlsx') {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const fileList = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        fileList.shift();
+        
+        // 处理解析后的数据
+        for (let i = 0; i < fileList.length; i++) {
+          // 解析后的数据fileList，fileList[i][1]是档口名，fileList[i][2]是档口编号
+          if (fileList[i].length > 0) {
+            screen(fileList[i], fileList[i][1], fileList[i][2]);
+            getTableData();
+          }
+        }
+
+        // 逻辑处理完后清除文件
+        fileInput.value = '';  // 清除文件
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      alert('请上传正确的Excel表格');
+      // 清除无效的文件
+      fileInput.value = '';
+    }
+  }
+};
+
+
+
+// 合计金额
 const totalAmount = computed(() => {
   return tableData.value.reduce((total, item) => {
     return total + item.stall.price;
