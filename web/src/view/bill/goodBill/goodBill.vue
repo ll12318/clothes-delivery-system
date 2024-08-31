@@ -212,7 +212,7 @@
           prop="createdBySimpleUser.nickName"
           width="120"
         />
-        // 下单设备
+      
         <el-table-column
           align="left"
           label="下单设备"
@@ -306,6 +306,7 @@
           label="下单人留言"
           prop="orderMessage"
           width="120"
+          :show-overflow-tooltip='true'
         />
         <el-table-column
           v-if="btnAuth.takeGoodPeopleInp"
