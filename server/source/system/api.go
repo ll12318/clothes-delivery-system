@@ -196,6 +196,8 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "货单", Method: "GET", Path: "/gb/getGoodBillMarketListByDriver", Description: "司机端获取货单列表"},
 		// 根据marketId获取货单列表
 		{ApiGroup: "货单", Method: "GET", Path: "/gb/getGoodBillListByMarketId", Description: "根据marketId获取货单列表"},
+		// 用户批量支付货单
+		{ApiGroup: "货单", Method: "POST", Path: "/gb/payGoodBillByIds", Description: "用户批量支付货单"},
 
 		// 货单状态
 		{ApiGroup: "货单状态", Method: "GET", Path: "/gbs/findGoodBillStatus", Description: "根据ID获取货单状态"},

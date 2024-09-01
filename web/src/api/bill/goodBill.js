@@ -113,3 +113,12 @@ export const getGoodBillListByMarketId = (params) => {
     params,
   });
 };
+
+// 批量支付货单
+export const PostPayGoodBillByIds = (params) => {
+  return service({
+    url: "/gb/payGoodBillByIds",
+    method: "post",
+    params,
+  });
+};

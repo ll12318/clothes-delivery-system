@@ -168,6 +168,10 @@
           >
             删除
           </el-button>
+          // 批量支付按钮
+          <el-button icon="money" style="margin-left: 10px" @click="onPay">
+            批量支付
+          </el-button>
         </div>
         <div class="excelCreatedOrder">
           <div>
@@ -397,58 +401,70 @@
         <el-table-column label="是否需要审核" prop="isManual" width="180">
           <template #default="scope">
             <div>
-              {{ scope.row.isManual=='0' ?  "不需要" : "需要" }}
+              {{ scope.row.isManual == "0" ? "不需要" : "需要" }}
             </div>
           </template>
         </el-table-column>
         <el-table-column label="微信订单号" prop="wechatOrderId" width="280">
           <template #default="scope">
-            <div >
-              {{ scope.row.wechatOrderId === "" ? "无" : scope.row.wechatOrderId }}
+            <div>
+              {{
+                scope.row.wechatOrderId === "" ? "无" : scope.row.wechatOrderId
+              }}
             </div>
           </template>
         </el-table-column>
         <el-table-column label="是否支付完成" prop="isPay" width="180">
           <template #default="scope">
             <div>
-              {{ scope.row.isPay==='1'? "已支付" : "未支付" }}
+              {{ scope.row.isPay === "1" ? "已支付" : "未支付" }}
             </div>
           </template>
         </el-table-column>
         <el-table-column label="售后状态" prop="afterSaleStatus" width="180">
           <template #default="scope">
             <div>
-              {{ scope.row.afterSaleStatus === '0' ? "无售后": '退款中'}}
+              {{ scope.row.afterSaleStatus === "0" ? "无售后" : "退款中" }}
             </div>
           </template>
         </el-table-column>
         <el-table-column label="同意退款" prop="agreeRefund" width="180">
           <template #default="scope">
-            <div v-if="scope.row.afterSaleStatus=== '0' ">
+            <div v-if="scope.row.afterSaleStatus === '0'">
               {{ "无售后" }}
             </div>
-            <div v-if="scope.row.afterSaleStatus=== '1'">
-              {{ scope.row.agreeRefund === "0" ? "未处理" : (scope.row.agreeRefund === 1 ? "同意" : "拒绝") }}
+            <div v-if="scope.row.afterSaleStatus === '1'">
+              {{
+                scope.row.agreeRefund === "0"
+                  ? "未处理"
+                  : scope.row.agreeRefund === 1
+                  ? "同意"
+                  : "拒绝"
+              }}
             </div>
           </template>
         </el-table-column>
         <el-table-column label="退款完成" prop="refundStatus" width="180">
           <template #default="scope">
-            <div v-if="scope.row.afterSaleStatus=== '0' ">
+            <div v-if="scope.row.afterSaleStatus === '0'">
               {{ "无售后" }}
             </div>
-            <div v-if="scope.row.afterSaleStatus=== '1'">
-              {{ scope.row.refundStatus === '0'? '未完成':'已完成' }}
+            <div v-if="scope.row.afterSaleStatus === '1'">
+              {{ scope.row.refundStatus === "0" ? "未完成" : "已完成" }}
             </div>
           </template>
         </el-table-column>
         <el-table-column label="退款订单号" prop="refundOrderId" width="180">
           <template #default="scope">
-            <div v-if="scope.row.afterSaleStatus=== '0' ">
+            <div v-if="scope.row.afterSaleStatus === '0'">
               {{ "无售后" }}
             </div>
-            <div v-if="scope.row.afterSaleStatus=== '1'">
-              {{ scope.row.refundOrderId === ''? '未完成' : scope.row.refundOrderId }}
+            <div v-if="scope.row.afterSaleStatus === '1'">
+              {{
+                scope.row.refundOrderId === ""
+                  ? "未完成"
+                  : scope.row.refundOrderId
+              }}
             </div>
           </template>
         </el-table-column>
@@ -631,6 +647,7 @@ import {
   deleteGoodBillByIds,
   findGoodBill,
   getGoodBillList,
+  PostPayGoodBillByIds,
   updateGoodBill,
 } from "@/api/bill/goodBill";
 import { getGoodBillStatusList } from "@/api/dataConfig/goodBillStatus";
@@ -933,6 +950,36 @@ const onDelete = async () => {
   });
 };
 
+// 多选批量支付
+const onPay = async () => {
+  await ElMessageBox.confirm("确定要批量支付吗?", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  });
+  const IDs = [];
+  if (multipleSelection.value.length === 0) {
+    ElMessage({
+      type: "warning",
+      message: "请选择要支付的数据",
+    });
+    return;
+  }
+  multipleSelection.value &&
+    multipleSelection.value.map((item) => {
+      IDs.push(item.ID);
+    });
+  const res = await PostPayGoodBillByIds({ IDs });
+  console.log(res);
+  if (res.code === 0) {
+    ElMessage({
+      type: "success",
+      message: "批量支付成功",
+    });
+    getTableData();
+  }
+};
+
 // 行为控制标记（弹窗内部需要增还是改）
 const type = ref("");
 
@@ -998,7 +1045,7 @@ const enterDialog = async () => {
         res = await updateGoodBill({
           ...formData.value,
           stallId: formData.value.stall.ID,
-          isManual:'0'
+          isManual: "0",
         });
         break;
       default:
