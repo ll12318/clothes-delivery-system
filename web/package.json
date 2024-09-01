@@ -28,6 +28,7 @@
         "nprogress": "^0.2.0",
         "path": "^0.12.7",
         "pinia": "^2.1.4",
+        "postcss": "^8.4.41",
         "qs": "^6.11.2",
         "screenfull": "^6.0.2",
         "sortablejs": "^1.15.2",

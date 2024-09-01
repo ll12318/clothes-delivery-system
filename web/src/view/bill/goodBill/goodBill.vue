@@ -169,7 +169,7 @@
             删除
           </el-button>
         </div>
-        <div>
+        <div class="excelCreatedOrder">
           <div>
             <el-button>
               批量下单
@@ -177,8 +177,22 @@
             </el-button>
           </div>
         </div>
-        <div>
-          <div>{{amountTitle +":" +totalAmount }}</div>
+        <div v-if="!showFreight" class="statistics">
+          <div>
+            <div>{{"订单总和:" +totalAmount }}</div>
+          </div> 
+          <div>
+            <div>{{"需要取货数量:" +totalAmount }}</div>
+          </div>
+          <div>
+            <div>{{"实际取货数量:" +totalAmount }}</div>
+          </div>
+          <div>
+            <div>{{"代付金额:" +totalAmount }}</div>
+          </div>
+        </div>
+        <div v-if="showFreight" style="width: 20%;">
+            小程序运费统计
         </div>
       </div>
       <el-table
@@ -276,6 +290,7 @@
             </div>
           </template>
         </el-table-column>
+        <!-- 改成代付金额 -->
         <!-- <el-table-column
           align="left"
           label="档口价格"
@@ -288,18 +303,19 @@
           prop="discountAmount"
           width="120"
         />
-        <!-- <el-table-column
-          align="left"
-          label="折扣率"
-          prop="discountRate"
-          width="120"
-        /> -->
         <el-table-column
           align="left"
           label="拿货数量"
           prop="takeGoodNum"
           width="120"
         />
+        <!-- 改成实际取货数量 -->
+        <!-- <el-table-column
+          align="left"
+          label="折扣率"
+          prop="discountRate"
+          width="120"
+        /> -->
         <el-table-column align="left" label="备注" prop="remarks" width="120"  :show-overflow-tooltip='true'/>
         <el-table-column
           align="left"
@@ -694,8 +710,8 @@ const total = ref(0);
 const pageSize = ref(10);
 const tableData = ref([]);
 const searchInfo = ref({});
-const amountTitle=ref('合计金额')
-
+// const amountTitle=ref('合计金额')
+const showFreight = ref(false)
 const stallOptions = ref([]);
 
 // ------批量下单部分
@@ -796,12 +812,14 @@ const queryGoodBillStatus = async () => {
 queryGoodBillStatus();
 // 重置
 const onReset = () => {
+  showFreight.value =  false
   searchInfo.value = {};
   getTableData();
 };
 
 // 搜索
 const onSubmit = () => {
+  showFreight.value = searchInfo.value.device === '0'? true : false
   elSearchFormRef.value?.validate(async (valid) => {
     if (!valid) return;
     page.value = 1;
@@ -824,6 +842,8 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
+  // console.log(searchInfo.value.device);
+  
   const table = await getGoodBillList({
     page: page.value,
     pageSize: pageSize.value,
@@ -860,7 +880,7 @@ const handleSelectionChange = (val) => {
 
 // 删除行
 const deleteRow = (row) => {
-  console.log(row.CreatedAt, "row");
+  // console.log(row.CreatedAt, "row");
   // 计算下单时间有没有超过半小时
   const time = new Date().getTime() - new Date(row.CreatedAt).getTime();
   if (time > 1000 * 60 * 30 && !btnAuth.takeGoodPeopleInp) {
@@ -1040,5 +1060,14 @@ const deleteImage = (img) => {
 
 .imgItem:hover .delete-icon {
   display: block;
+}
+.statistics{
+  display: flex;
+  flex: 1;
+  justify-content: space-around;
+}
+.excelCreatedOrder{
+  width: 30%;
+  padding-left: 10%;
 }
 </style>
