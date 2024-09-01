@@ -142,6 +142,19 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="支付状态" prop="isPay">
+          <el-select v-model="searchInfo.isPay"  clearable filterable>
+            <el-option
+              v-for="item in [
+                { label: '未完成', value: '0' },
+                { label: '完成', value: '1' },
+              ]"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button icon="search" type="primary" @click="onSubmit">
             查询
@@ -168,35 +181,36 @@
           >
             删除
           </el-button>
-          // 批量支付按钮
+          <!--  批量支付按钮 -->
           <el-button icon="money" style="margin-left: 10px" @click="onPay">
             批量支付
           </el-button>
         </div>
         <div class="excelCreatedOrder">
-          <div>
-            <el-button>
-              批量下单
-              <input type="file" accept=".xls,.xlsx" @change="readExcel"/>
-            </el-button>
+          <div class="file-input-wrapper">
+            <button type="button" @click="alert('11')">批量下单</button>
+            <input type="file" class="file-input" @change="readExcel">
+          </div>  
+          <div style="line-height: 20px;">
+            <a  href="../../../config/批量上传.xlsx" download="批量下单模板.xlsx">下载批量下单模板</a>
           </div>
         </div>
         <div v-if="!showFreight" class="statistics">
           <div>
-            <div>{{"订单总和:" +totalAmount }}</div>
+            <div>{{"订单总和:  " + total }}</div>
           </div> 
           <div>
-            <div>{{"需要取货数量:" +totalAmount }}</div>
+            <div>{{"需要取货数量: " + takeGoodNums }}</div>
           </div>
           <div>
-            <div>{{"实际取货数量:" +totalAmount }}</div>
+            <div>{{"实际取货数量: " +actualTakeGoodNum }}</div>
           </div>
           <div>
-            <div>{{"代付金额:" +totalAmount }}</div>
+            <div>{{"代付金额: " +payAmount }}</div>
           </div>
         </div>
         <div v-if="showFreight" style="width: 20%;">
-            小程序运费统计
+            小程序运费统计：{{ discountAmount }}
         </div>
       </div>
       <el-table
@@ -230,7 +244,12 @@
           prop="createdBySimpleUser.nickName"
           width="120"
         />
-      
+        <el-table-column
+          align="left"
+          label="报单人"
+          prop="declarant"
+          width="120"
+        />
         <el-table-column
           align="left"
           label="下单设备"
@@ -294,16 +313,18 @@
             </div>
           </template>
         </el-table-column>
-        <!-- 改成代付金额 -->
-        <!-- <el-table-column
-          align="left"
-          label="档口价格"
-          prop="stall.price"
-          width="120"
-        /> -->
+        
         <el-table-column
+          v-if="!showFreight"
           align="left"
-          label="折扣后金额"
+          label="代收货款"
+          prop="payAmount"
+          width="120"
+        />
+        <el-table-column
+          v-if="showFreight"
+          align="left"
+          label="小程序运费"
           prop="discountAmount"
           width="120"
         />
@@ -314,12 +335,12 @@
           width="120"
         />
         <!-- 改成实际取货数量 -->
-        <!-- <el-table-column
+        <el-table-column
           align="left"
-          label="折扣率"
-          prop="discountRate"
+          label="实际取货数量"
+          prop="actualTakeGoodNum"
           width="120"
-        /> -->
+        />
         <el-table-column align="left" label="备注" prop="remarks" width="120"  :show-overflow-tooltip='true'/>
         <el-table-column
           align="left"
@@ -664,7 +685,7 @@ import UploadImage from "@/components/upload/image.vue";
 
 import * as XLSX from 'xlsx'
 import { getMarketList } from "@/api/dataConfig/market";
-import { screen } from "@/utils/screen";
+import { cleanString, screen } from "@/utils/screen";
 
 const btnAuth = useBtnAuth();
 
@@ -749,16 +770,18 @@ const readExcel = (event) => {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const fileList = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        let fileList = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
         fileList.shift();
         
         // 处理解析后的数据
         for (let i = 0; i < fileList.length; i++) {
-          // 解析后的数据fileList，fileList[i][1]是档口名，fileList[i][2]是档口编号
           if (fileList[i].length > 0) {
-            screen(fileList[i], fileList[i][1], fileList[i][2]);
-            getTableData();
+            const stallName = cleanString(fileList[i][1]);
+            const stallNumber = cleanString(fileList[i][2]);
+
+            screen(fileList[i], stallName, stallNumber);
           }
+          getTableData();
         }
 
         // 逻辑处理完后清除文件
@@ -773,15 +796,30 @@ const readExcel = (event) => {
   }
 };
 
-
-
-// 合计金额
-const totalAmount = computed(() => {
+// 代付金额
+const payAmount = computed(() => {
   return tableData.value.reduce((total, item) => {
-    return total + item.stall.price;
+    return total + item.payAmount;
   }, 0);
 });
-
+// 需要取货数量
+const takeGoodNums = computed(() => {
+  return tableData.value.reduce((total, item) => {
+    return total + item.takeGoodNum;
+  }, 0);
+});
+// 实际取货数量
+const actualTakeGoodNum = computed(() => {
+  return tableData.value.reduce((total, item) => {
+    return total + item.actualTakeGoodNum;
+  }, 0);
+});
+// 小程序实际收款金额
+const discountAmount = computed(() => {
+  return tableData.value.reduce((total, item) => {
+    return total + item.discountAmount;
+  }, 0);
+});
 const queryStallList = async () => {
   const table = await getStallList({
     page: page.value,
@@ -1116,5 +1154,20 @@ const deleteImage = (img) => {
 .excelCreatedOrder{
   width: 30%;
   padding-left: 10%;
+  display: flex;
 }
+.file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    margin-right: 30px;
+  }
+
+  .file-input {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+  }
 </style>

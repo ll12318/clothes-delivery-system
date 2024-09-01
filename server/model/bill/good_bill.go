@@ -60,15 +60,16 @@ type GoodBill struct {
 	DiscountAmount float64 `json:"discountAmount" form:"discountAmount" gorm:"column:discount_amount;comment:折扣后金额;"`
 	// 折扣率
 	DiscountRate float64 `json:"discountRate" form:"discountRate" gorm:"column:discount_rate;comment:折扣率;"`
-
+	// 报单人
+	Declarant string `json:"declarant" form:"declarant" gorm:"column:declarant;comment:报单人;"`
 	// 代付金额
 	PayAmount float64 `json:"payAmount" form:"payAmount" gorm:"column:pay_amount;comment:代付金额;"`
 
 	// 实际取货数量
 	ActualTakeGoodNum int `json:"actualTakeGoodNum" form:"actualTakeGoodNum" gorm:"column:actual_take_good_num;comment:实际取货数量;"`
 
-	//是狗扣除货款 0 未扣除 1 已扣除
-	IsDeductGoods string `json:"isDeductGoods" form:"isDeductGoods" gorm:"column:is_deduct_goods;comment:是狗扣除货款;default:'0';"`
+	//是否扣除货款 0 未扣除 1 已扣除
+	IsDeductGoods string `json:"isDeductGoods" form:"isDeductGoods" gorm:"column:is_deduct_goods;comment:是否除货款;default:'0';"`
 }
 
 // TableName 货单 GoodBill自定义表名 good_bill
