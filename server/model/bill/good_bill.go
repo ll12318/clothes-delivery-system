@@ -19,11 +19,11 @@ type GoodBill struct {
 	CreatedBySimpleUser response.CreatedBySimpleUser `json:"createdBySimpleUser"  gorm:"-"`
 	Stall               dataConfig.Stall             `json:"stall" gorm:"foreignKey:StallId;references:ID"`
 	StallId             uint                         `json:"stallId" form:"stallId" gorm:"column:stall_id;comment:;"`
-	Urgent              *bool                        `json:"urgent" form:"urgent" gorm:"column:urgent;comment:是否加急;"` // 是否紧急
+	Urgent              *bool                        `json:"urgent" form:"urgent" gorm:"column:urgent;comment:是否加急;default:false;"` // 是否紧急
 	TakeGoodPeople      system.SysUser               `json:"takeGoodPeople" form:"takeGoodPeople" gorm:"foreignKey:TakeGoodPeopleId;references:ID"`
 	TakeGoodPeopleId    uint                         `json:"takeGoodPeopleId" form:"takeGoodPeopleId" gorm:"column:take_good_people_id;comment: 拿货人id;"`
 	TakeGoodNum         int                          `json:"takeGoodNum" form:"takeGoodNum" gorm:"column:take_good_num;comment:拿货数量;"`                   // 拿货数量
-	FinishStatus        *bool                        `json:"finishStatus" form:"finishStatus" gorm:"column:finish_status;comment:完成状态;"`                 // 完成状态
+	FinishStatus        *bool                        `json:"finishStatus" form:"finishStatus" gorm:"column:finish_status;comment:完成状态;default:false;"`   // 完成状态
 	GoodBillStatus      dataConfig.GoodBillStatus    `json:"goodBillStatus" gorm:"foreignKey:GoodBillStatusId;references:ID"`                            // 货单状态
 	GoodBillStatusId    uint                         `json:"goodBillStatusId" form:"goodBillStatusId" gorm:"column:good_bill_status_id;comment:货单状态id;"` // 货单状态id
 	FinishTime          string                       `json:"finishTime" form:"finishTime" gorm:"column:finish_time;comment:完成时间;"`                       // 完成时间
@@ -35,7 +35,7 @@ type GoodBill struct {
 	OrderMessage        string                       `json:"orderMessage" form:"orderMessage" gorm:"column:order_message;comment:下单人留言;type:longtext;"`   // 下单人留言
 	AdminMessage        string                       `json:"adminMessage" form:"adminMessage" gorm:"column:admin_message;comment:管理员留言;type:longtext;"`   // 管理员留言
 	DriverMessage       string                       `json:"driverMessage" form:"driverMessage" gorm:"column:driver_message;comment:司机留言;type:longtext;"` // 司机留言
-	DriverVerify        *bool                        `json:"driverVerify" form:"driverVerify" gorm:"column:driver_verify;comment:司机核实;"`
+	DriverVerify        *bool                        `json:"driverVerify" form:"driverVerify" gorm:"column:driver_verify;comment:司机核实;default:false;"`
 	Device              string                       `json:"device" form:"device" gorm:"column:device;comment:下单设备 0 小程序 1 网页端;default:'1';"` // 下单设备 0 小程序 1 网页端
 	BillNumber          string                       `json:"billNumber" form:"billNumber" gorm:"column:bill_number;comment:单据编号;"`
 
@@ -60,6 +60,15 @@ type GoodBill struct {
 	DiscountAmount float64 `json:"discountAmount" form:"discountAmount" gorm:"column:discount_amount;comment:折扣后金额;"`
 	// 折扣率
 	DiscountRate float64 `json:"discountRate" form:"discountRate" gorm:"column:discount_rate;comment:折扣率;"`
+
+	// 代付金额
+	PayAmount float64 `json:"payAmount" form:"payAmount" gorm:"column:pay_amount;comment:代付金额;"`
+
+	// 实际取货数量
+	ActualTakeGoodNum int `json:"actualTakeGoodNum" form:"actualTakeGoodNum" gorm:"column:actual_take_good_num;comment:实际取货数量;"`
+
+	//是狗扣除货款 0 未扣除 1 已扣除
+	IsDeductGoods string `json:"isDeductGoods" form:"isDeductGoods" gorm:"column:is_deduct_goods;comment:是狗扣除货款;default:'0';"`
 }
 
 // TableName 货单 GoodBill自定义表名 good_bill

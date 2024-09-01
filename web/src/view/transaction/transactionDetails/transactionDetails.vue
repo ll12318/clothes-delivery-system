@@ -54,11 +54,11 @@
       </el-form>
     </div>
     <div class="gva-table-box">
-      <!-- <div class="gva-btn-list">
+      <div class="gva-btn-list">
         <el-button icon="plus" type="primary" @click="openDialog">
           新增1
         </el-button>
-      </div> -->
+      </div>
       <el-table
         ref="multipleTable"
         :data="tableData"
@@ -130,7 +130,8 @@
           show-overflow-tooltip
           width="320"
         />
-        <!-- <el-table-column
+        &lt;!&ndash;
+        <el-table-column
           align="left"
           fixed="right"
           label="操作"
@@ -155,7 +156,8 @@
               删除
             </el-button>
           </template>
-        </el-table-column> -->
+        </el-table-column>
+        &ndash;&gt;
       </el-table>
       <div class="gva-pagination">
         <el-pagination

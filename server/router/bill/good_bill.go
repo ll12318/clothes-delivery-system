@@ -30,6 +30,9 @@ func (s *GoodBillRouter) InitGoodBillRouter(Router *gin.RouterGroup, PublicRoute
 
 		// 根据marketId获取货单列表
 		gbRouterWithoutRecord.GET("getGoodBillListByMarketId", gbApi.GetGoodBillListByMarketId) // 获取货单列表
+
+		// 用户批量支付货单
+		gbRouterWithoutAuth.POST("payGoodBillByIds", gbApi.PayGoodBillByIds)
 	}
 	{
 		gbRouterWithoutAuth.GET("getGoodBillPublic", gbApi.GetGoodBillPublic) // 获取货单列表

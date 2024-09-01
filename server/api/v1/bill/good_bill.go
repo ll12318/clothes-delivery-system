@@ -127,7 +127,7 @@ func (gbApi *GoodBillApi) CreateGoodBill(c *gin.Context) {
 		}
 	}
 
-	// todo 余额支付
+	//  余额支付
 	if gb.PayType == "余额支付" {
 		stallPrice := gb.DiscountAmount
 		fmt.Println(stallPrice, "stallPrice")
@@ -319,6 +319,46 @@ func (gbApi *GoodBillApi) UpdateGoodBill(c *gin.Context) {
 			gb.RefundStatus = "1"
 		}
 	}
+	if goodBill.FinishStatus == nil {
+		*goodBill.FinishStatus = false
+	}
+	// 司机点击确认货单 FinishStatus
+	if *gb.FinishStatus == true && *goodBill.FinishStatus != true {
+		if goodBill.IsPay == "0" {
+			stallPrice := gb.DiscountAmount
+			tdService := transaction.TransactionDetailsService{}
+			ltd, err := tdService.GetTransactionDetailsByUserId(strconv.Itoa(int(goodBill.CreatedBy)))
+			if err != nil || *ltd.PostTransactionAmount < stallPrice {
+				gb.PayType = "网页端-余额不足"
+			} else {
+				TransactionAmount := float64(0)
+				PreTransactionAmount := float64(0)
+				PostTransactionAmount := float64(0)
+				TransactionAmount, _ = decimal.NewFromFloat(TransactionAmount).Sub(decimal.NewFromFloat(gb.DiscountAmount)).Float64()
+				err = tdService.CreateTransactionDetails(&transactionModel.TransactionDetails{
+					TransactionAmount:     &TransactionAmount,
+					PreTransactionAmount:  &PreTransactionAmount,
+					PostTransactionAmount: &PostTransactionAmount,
+					UserId:                goodBill.CreatedBy,
+					WechatOrderId:         gb.WechatOrderId,
+					BillNumber:            gb.BillNumber,
+					Remark:                "货单余额支付",
+				})
+				if err != nil {
+					response.FailWithMessage("余额支付失败，请联系管理员", c)
+					return
+				}
+				gb.IsPay = "1"
+				gb.PayType = "网页端-余额支付"
+			}
+
+		}
+
+	}
+	//if *goodBill.FinishStatus == true {
+	//	*gb.FinishStatus = true
+	//}
+
 	if err := gbService.UpdateGoodBill(gb, userUuid, c); err != nil {
 		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
@@ -438,4 +478,21 @@ func (gbApi *GoodBillApi) GetGoodBillListByMarketId(c *gin.Context) {
 		List:  list,
 		Total: total,
 	}, "获取成功", c)
+}
+
+// 用户批量支付货单
+
+func (gbApi *GoodBillApi) PayGoodBillByIds(c *gin.Context) {
+	// 获取参数ids数组
+	IDs := c.QueryArray("IDs[]")
+	fmt.Sprintf("ids: %s", IDs)
+
+	payInfoList, err := gbService.PayGoodBillByIds(IDs)
+	if err != nil {
+		global.GVA_LOG.Error("支付失败!", zap.Error(err))
+		response.FailWithMessage("支付失败", c)
+		return
+	}
+
+	response.OkWithDetailed(payInfoList, "支付成功", c)
 }

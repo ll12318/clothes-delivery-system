@@ -1,16 +1,20 @@
 package bill
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/bill"
 	billReq "github.com/flipped-aurora/gin-vue-admin/server/model/bill/request"
 	dataConfigModel "github.com/flipped-aurora/gin-vue-admin/server/model/dataConfig"
 	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
+	transactionModel "github.com/flipped-aurora/gin-vue-admin/server/model/transaction"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/dataConfig"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
+	"github.com/flipped-aurora/gin-vue-admin/server/service/transaction"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid/v5"
+	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 	"strconv"
 	time2 "time"
@@ -408,4 +412,60 @@ func (gbService *GoodBillService) GetGoodBillListByMarketId(userId uint, info bi
 	db.Count(&total)
 
 	return goodBills, total, err
+}
+
+// 批量支付货单
+func (gbService *GoodBillService) PayGoodBillByIds(ids []string) (payInfoList []string, err error) {
+	// 获取货单信息
+	var gbs []bill.GoodBill
+	err = global.GVA_DB.Where("id in ?", ids).Find(&gbs).Error
+	fmt.Sprintln(gbs)
+
+	// 支付信息列表 字符串拼接
+
+	for _, gb := range gbs {
+		//gb.DiscountAmount
+		stallPrice := gb.DiscountAmount
+		fmt.Println(stallPrice, "stallPrice")
+		tdService := transaction.TransactionDetailsService{}
+		ltd, err := tdService.GetTransactionDetailsByUserId(strconv.Itoa(int(gb.CreatedBy)))
+		if gb.IsPay == "1" {
+			payInfoList = append(payInfoList, "货单号："+gb.BillNumber+"，货单金额："+strconv.FormatFloat(stallPrice, 'f', 2, 64)+"，支付失败！"+"货单已支付！")
+			continue
+		}
+		if err != nil || *ltd.PostTransactionAmount < stallPrice {
+			payInfoList = append(payInfoList, "货单号："+gb.BillNumber+"，货单金额："+strconv.FormatFloat(stallPrice, 'f', 2, 64)+"，支付失败！"+"余额不足！")
+			continue
+		}
+		TransactionAmount := float64(0)
+		PreTransactionAmount := float64(0)
+		PostTransactionAmount := float64(0)
+		//TransactionAmount -= gb.Stall.Price
+		TransactionAmount, _ = decimal.NewFromFloat(TransactionAmount).Sub(decimal.NewFromFloat(gb.DiscountAmount)).Float64()
+		err = tdService.CreateTransactionDetails(&transactionModel.TransactionDetails{
+			TransactionAmount:     &TransactionAmount,
+			PreTransactionAmount:  &PreTransactionAmount,
+			PostTransactionAmount: &PostTransactionAmount,
+			UserId:                gb.CreatedBy,
+			WechatOrderId:         gb.WechatOrderId,
+			BillNumber:            gb.BillNumber,
+			Remark:                "货单余额支付",
+		})
+		if err != nil {
+			payInfoList = append(payInfoList, "货单号："+gb.BillNumber+"，货单金额："+strconv.FormatFloat(stallPrice, 'f', 2, 64)+"，支付失败！"+"余额不足！")
+			continue
+		}
+		gb.IsPay = "1"
+		gb.PayType = "网页端-余额支付"
+		db := global.GVA_DB.Model(&bill.GoodBill{}).Where("id = ?", gb.ID)
+		err = db.Updates(&gb).Error
+		if err != nil {
+			payInfoList = append(payInfoList, "货单号："+gb.BillNumber+"，货单金额："+strconv.FormatFloat(stallPrice, 'f', 2, 64)+"，支付失败！"+"货单支付失败！")
+			continue
+		}
+		payInfoList = append(payInfoList, "货单号："+gb.BillNumber+"，货单金额："+strconv.FormatFloat(stallPrice, 'f', 2, 64)+"，支付成功！")
+
+	}
+	fmt.Sprintf("payInfoList:%v", payInfoList)
+	return payInfoList, err
 }
