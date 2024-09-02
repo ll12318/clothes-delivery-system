@@ -129,7 +129,7 @@
         >
           <template #default="scope">
             <div>
-              {{ scope.row.urgent? '加急': '非加急' }}
+              {{ scope.row.urgent ? "加急" : "非加急" }}
             </div>
           </template>
         </el-table-column>
@@ -231,6 +231,7 @@
             :clearable="true"
             placeholder="请选择市场"
             value-key="ID"
+            @change="marketChange"
           >
             <el-option
               v-for="item in marketOptions"
@@ -239,6 +240,13 @@
               :value="item"
             />
           </el-select>
+        </el-form-item>
+        <el-form-item label="档口地址:" prop="address">
+          <el-input
+            v-model="formData.address"
+            :clearable="true"
+            placeholder="请输入档口地址"
+          />
         </el-form-item>
         <el-form-item label="档口名称:" prop="stall">
           <el-input
@@ -292,6 +300,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { reactive, ref } from "vue";
 
 defineOptions({
+  // eslint-disable-next-line vue/multi-word-component-names
   name: "Stall",
 });
 
@@ -300,6 +309,7 @@ const formData = ref({
   stall: "",
   stallNumber: "",
   remarks: "",
+  address: "",
   market: null,
 });
 
@@ -379,6 +389,11 @@ const total = ref(0);
 const pageSize = ref(10);
 const tableData = ref([]);
 const searchInfo = ref({});
+
+const marketChange = (value) => {
+  formData.value.address = value.address;
+};
+
 // 排序
 const sortChange = ({ prop, order }) => {
   const sortMap = {
@@ -548,14 +563,13 @@ const closeDialog = () => {
 };
 // 弹窗确定
 const enterDialog = async () => {
-
   elFormRef.value?.validate(async (valid) => {
     if (!valid) return;
     let res;
     switch (type.value) {
       case "create":
         if (formData.value.urgent == undefined) {
-          formData.value.urgent = false
+          formData.value.urgent = false;
         }
         res = await createStall(formData.value);
         break;

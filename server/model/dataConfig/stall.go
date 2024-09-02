@@ -10,7 +10,8 @@ type Stall struct {
 	global.GVA_MODEL
 	Stall       string  `json:"stall" form:"stall" gorm:"column:stall;comment:;" binding:"required"`                    //档口名称
 	StallNumber string  `json:"stallNumber" form:"stallNumber" gorm:"column:stall_number;comment:;" binding:"required"` //档口号
-	Remarks     string  `json:"remarks" form:"remarks" gorm:"column:remarks;comment:;"`                                 //备注
+	Remarks     string  `json:"remarks" form:"remarks" gorm:"column:remarks;comment:;"`
+	Address     string  `json:"address" form:"address" gorm:"column:address;comment:;"` //地址//备注
 	Market      Market  `json:"market" form:"market" gorm:"foreignKey:MarketId;references:ID"`
 	MarketId    uint    `json:"marketId" form:"marketId" gorm:"column:market_id;comment:;"`
 	RouteId     uint    `json:"routeId" form:"routeId" gorm:"column:route_id;comment:;"`
