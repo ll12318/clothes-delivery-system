@@ -16,6 +16,8 @@ type GoodBillSearch struct {
 	BillNumber       string     `json:"billNumber" form:"billNumber"`     // 单据编号
 	IsManual         string     `json:"isManual" form:"isManual"`
 	Declarant        string     `json:"declarant" form:"declarant"`
+	// 是否支付 IsPay
+	IsPay string `json:"isPay" form:"isPay"`
 	request.PageInfo
 }
 

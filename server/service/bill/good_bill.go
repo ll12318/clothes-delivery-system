@@ -218,6 +218,11 @@ func (gbService *GoodBillService) GetGoodBillInfoList(info billReq.GoodBillSearc
 		db = db.Where("is_manual = ?", info.IsManual)
 	}
 
+	// 搜索是否支付
+	if info.IsPay != "" {
+		db = db.Where("is_pay = ?", info.IsPay)
+	}
+
 	// 判断用户角色是不是超级管理员 管理员 888 用户998 司机999
 	for _, authority := range authorities {
 		authorityId := authority.AuthorityId
