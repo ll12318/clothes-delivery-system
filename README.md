@@ -10,7 +10,7 @@
 <img src="https://img.shields.io/badge/gorm-1.25.2-red"/>
 </div>
 
-[English](./README-en.md) | 简体中文
+[English](./README-en.md) | 简体中文1
 
 # 项目文档
 [在线文档](https://www.gin-vue-admin.com) : https://www.gin-vue-admin.com
