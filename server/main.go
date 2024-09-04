@@ -33,6 +33,8 @@ func main() {
 
 	initialize.DBList()
 	if global.GVA_DB != nil {
+
+		// 没有新表前可以注释，提升启动速度
 		initialize.RegisterTables() // 初始化表
 		// 程序结束前关闭数据库链接
 		db, _ := global.GVA_DB.DB()
